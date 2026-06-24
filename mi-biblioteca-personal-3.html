@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="es" translate="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="google" content="notranslate">
+<title>Mi Biblioteca Personal ✨</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+  :root {
+    --bg-deep:#0d0a1a;--bg-card:#1a1330;--bg-panel:#221840;
+    --violet-dark:#3d1f7a;--violet-mid:#6b3fa0;--violet-light:#9b6fcc;
+    --lavender:#c8b4e8;--lavender-pale:#e8dff5;--silver:#c0c8d8;
+    --gold:#d4af6a;--gold-light:#f0d090;--text-main:#e8dff5;--text-dim:#a090c0;
+    --danger:#c06080;--success:#70b090;--border:rgba(176,127,212,0.3);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Crimson Text',serif;background:var(--bg-deep);color:var(--text-main);min-height:100vh;background-image:radial-gradient(ellipse at 20% 20%,rgba(107,63,160,0.15) 0%,transparent 50%),radial-gradient(ellipse at 80% 80%,rgba(61,31,122,0.2) 0%,transparent 50%);}
+  .app{display:flex;min-height:100vh;}
+  .sidebar{width:220px;background:linear-gradient(180deg,#130e25 0%,#0d0a1a 100%);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;height:100vh;z-index:100;}
+  .sidebar-logo{padding:22px 16px 18px;text-align:center;border-bottom:1px solid var(--border);}
+  .sidebar-logo h1{font-family:'Cinzel Decorative',cursive;font-size:12px;color:var(--gold);line-height:1.5;text-shadow:0 0 20px rgba(212,175,106,0.5);}
+  .sidebar-logo .icon-logo{font-size:30px;display:block;margin-bottom:8px;}
+  .sync-status{display:flex;align-items:center;gap:6px;padding:6px 16px;font-size:11px;color:var(--text-dim);border-bottom:1px solid var(--border);background:rgba(0,0,0,0.2);}
+  .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--text-dim);flex-shrink:0;}
+  .sync-dot.synced{background:var(--success);}
+  .sync-dot.syncing{background:var(--gold);animation:pulse 1s infinite;}
+  .sync-dot.error{background:var(--danger);}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+  .sidebar-nav{flex:1;padding:12px 0;overflow-y:auto;}
+  .nav-section-title{font-size:10px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;padding:10px 20px 4px;}
+  .nav-btn{display:flex;align-items:center;gap:10px;width:100%;padding:10px 20px;background:none;border:none;color:var(--text-dim);cursor:pointer;font-family:'Crimson Text',serif;font-size:15px;text-align:left;transition:all 0.2s;border-left:3px solid transparent;}
+  .nav-btn:hover,.nav-btn.active{color:var(--lavender);background:rgba(176,127,212,0.1);border-left-color:var(--violet-light);}
+  .nav-btn.active{color:var(--gold-light);border-left-color:var(--gold);}
+  .nav-btn .nav-icon{font-size:15px;min-width:20px;}
+  .sidebar-stats{padding:14px 16px;border-top:1px solid var(--border);}
+  .stat-mini{display:flex;justify-content:space-between;font-size:12px;color:var(--text-dim);margin-bottom:5px;}
+  .stat-mini span:last-child{color:var(--lavender);font-weight:600;}
+  .main{margin-left:220px;flex:1;padding:28px 32px;min-height:100vh;}
+  .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid var(--border);}
+  .page-title{font-family:'Cinzel Decorative',cursive;font-size:20px;color:var(--gold-light);text-shadow:0 0 30px rgba(212,175,106,0.3);}
+  .page-subtitle{font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--text-dim);font-style:italic;margin-top:4px;}
+  .btn{padding:9px 18px;border-radius:6px;border:none;cursor:pointer;font-family:'Crimson Text',serif;font-size:14px;font-weight:600;transition:all 0.2s;display:inline-flex;align-items:center;gap:7px;}
+  .btn-primary{background:linear-gradient(135deg,var(--violet-mid),var(--violet-dark));color:var(--lavender-pale);border:1px solid var(--violet-light);box-shadow:0 0 15px rgba(107,63,160,0.3);}
+  .btn-primary:hover{background:linear-gradient(135deg,var(--violet-light),var(--violet-mid));transform:translateY(-1px);}
+  .btn-ghost{background:transparent;color:var(--text-dim);border:1px solid var(--border);}
+  .btn-ghost:hover{color:var(--lavender);border-color:var(--violet-light);}
+  .btn-danger{background:rgba(192,96,128,0.15);color:var(--danger);border:1px solid rgba(192,96,128,0.3);}
+  .btn-sm{padding:5px 12px;font-size:12px;}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;transition:box-shadow 0.2s;}
+  .card:hover{box-shadow:0 4px 20px rgba(176,127,212,0.15);}
+  .page{display:none;}.page.active{display:block;}
+  .welcome-banner{background:linear-gradient(135deg,var(--violet-dark) 0%,#1a0a3a 50%,var(--bg-card) 100%);border:1px solid var(--violet-mid);border-radius:16px;padding:28px 32px;margin-bottom:24px;position:relative;overflow:hidden;}
+  .welcome-banner::before{content:'✦ ✧ ✦';position:absolute;right:32px;top:50%;transform:translateY(-50%);font-size:36px;color:rgba(176,127,212,0.15);letter-spacing:12px;}
+  .welcome-banner h2{font-family:'Cinzel Decorative',cursive;font-size:22px;color:var(--gold-light);margin-bottom:8px;}
+  .welcome-banner p{font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--lavender);font-style:italic;}
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+  .stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:18px;text-align:center;}
+  .stat-card .stat-icon{font-size:26px;margin-bottom:6px;}
+  .stat-card .stat-number{font-family:'Cinzel Decorative',cursive;font-size:26px;color:var(--gold-light);display:block;}
+  .stat-card .stat-label{font-size:11px;color:var(--text-dim);margin-top:4px;}
+  .search-bar{display:flex;gap:10px;margin-bottom:18px;align-items:center;flex-wrap:wrap;}
+  .search-input{flex:1;min-width:180px;background:var(--bg-panel);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text-main);font-family:'Crimson Text',serif;font-size:15px;outline:none;transition:border-color 0.2s;}
+  .search-input:focus{border-color:var(--violet-light);}
+  .search-input::placeholder{color:var(--text-dim);}
+  .filter-select{background:var(--bg-panel);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text-main);font-family:'Crimson Text',serif;font-size:14px;outline:none;cursor:pointer;}
+  .books-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:18px;}
+  .book-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:all 0.25s;cursor:pointer;}
+  .book-card:hover{transform:translateY(-4px);box-shadow:0 8px 28px rgba(176,127,212,0.25);border-color:var(--violet-light);}
+  .book-cover{height:150px;display:flex;align-items:center;justify-content:center;font-size:55px;position:relative;}
+  .book-status-badge{position:absolute;top:8px;right:8px;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;}
+  .status-leido{background:rgba(112,176,144,0.3);color:#90d0b0;border:1px solid rgba(112,176,144,0.4);}
+  .status-leyendo{background:rgba(176,127,212,0.3);color:var(--lavender);border:1px solid rgba(176,127,212,0.4);}
+  .status-pendiente{background:rgba(192,200,216,0.2);color:var(--silver);border:1px solid rgba(192,200,216,0.3);}
+  .status-abandonado{background:rgba(192,96,128,0.2);color:var(--danger);border:1px solid rgba(192,96,128,0.3);}
+  .book-info{padding:12px 14px;}
+  .book-title{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;color:var(--lavender-pale);margin-bottom:3px;line-height:1.3;}
+  .book-author{font-size:12px;color:var(--text-dim);font-style:italic;margin-bottom:6px;}
+  .star-rating{color:var(--gold);font-size:13px;}
+  .star-rating .empty{color:#2a2040;}
+  .book-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px;}
+  .tag{padding:2px 8px;background:rgba(107,63,160,0.2);border:1px solid rgba(107,63,160,0.4);border-radius:20px;font-size:10px;color:var(--lavender);}
+  .book-card-actions{display:flex;gap:6px;padding:8px 12px;border-top:1px solid var(--border);}
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+  .modal-overlay.open{display:flex;}
+  .modal{background:var(--bg-card);border:1px solid var(--violet-mid);border-radius:16px;padding:28px;width:90%;max-width:620px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.5);}
+  .modal h2{font-family:'Cinzel Decorative',cursive;font-size:16px;color:var(--gold-light);margin-bottom:22px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .form-full{grid-column:1/-1;}
+  .form-group{display:flex;flex-direction:column;gap:5px;}
+  .form-label{font-size:11px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;}
+  .form-input,.form-select,.form-textarea{background:var(--bg-panel);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text-main);font-family:'Crimson Text',serif;font-size:15px;outline:none;transition:border-color 0.2s;width:100%;}
+  .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--violet-light);}
+  .form-textarea{min-height:80px;resize:vertical;}
+  .star-picker{display:flex;gap:6px;font-size:22px;cursor:pointer;}
+  .star-picker span{color:#2a2040;transition:color 0.1s;}
+  .star-picker span.lit{color:var(--gold);}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:18px;border-top:1px solid var(--border);}
+  .book-detail-header{display:flex;gap:18px;margin-bottom:20px;}
+  .book-detail-cover{width:90px;height:126px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:44px;flex-shrink:0;border:1px solid var(--border);}
+  .book-detail-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--lavender-pale);margin-bottom:4px;}
+  .book-detail-author{font-size:13px;color:var(--text-dim);font-style:italic;margin-bottom:10px;}
+  .detail-row{display:flex;gap:8px;margin-bottom:7px;}
+  .detail-label{font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;min-width:88px;padding-top:2px;}
+  .detail-value{font-size:15px;color:var(--text-main);flex:1;}
+  .rating-bars{display:flex;flex-direction:column;gap:9px;margin-top:10px;}
+  .rating-bar-row{display:flex;align-items:center;gap:10px;}
+  .rating-bar-label{font-size:12px;color:var(--text-dim);width:105px;}
+  .rating-bar-track{flex:1;height:6px;background:var(--bg-panel);border-radius:3px;overflow:hidden;}
+  .rating-bar-fill{height:100%;background:linear-gradient(90deg,var(--violet-mid),var(--lavender));border-radius:3px;}
+  .rating-bar-num{font-size:12px;color:var(--lavender);width:16px;text-align:right;}
+  .tbr-list{display:flex;flex-direction:column;gap:10px;}
+  .tbr-item{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:13px 16px;display:flex;align-items:center;gap:12px;transition:all 0.2s;}
+  .tbr-item:hover{border-color:var(--violet-light);}
+  .tbr-priority{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+  .priority-alta{background:rgba(212,175,106,0.2);color:var(--gold);border:1px solid rgba(212,175,106,0.4);}
+  .priority-media{background:rgba(107,63,160,0.2);color:var(--lavender);border:1px solid rgba(107,63,160,0.4);}
+  .priority-baja{background:rgba(192,200,216,0.1);color:var(--silver);border:1px solid rgba(192,200,216,0.2);}
+  .tbr-info{flex:1;}
+  .tbr-title{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;color:var(--lavender-pale);}
+  .tbr-author{font-size:12px;color:var(--text-dim);font-style:italic;}
+  .tbr-meta{font-size:11px;color:var(--text-dim);margin-top:3px;}
+  .stats-overview{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:24px;}
+  .big-stat{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:22px;text-align:center;}
+  .big-stat .icon{font-size:34px;margin-bottom:8px;}
+  .big-stat .number{font-family:'Cinzel Decorative',cursive;font-size:34px;color:var(--gold-light);display:block;}
+  .big-stat .label{font-size:12px;color:var(--text-dim);margin-top:5px;}
+  .genre-chart{display:flex;flex-direction:column;gap:10px;}
+  .genre-row{display:flex;align-items:center;gap:10px;}
+  .genre-name{font-size:14px;color:var(--text-main);width:110px;}
+  .genre-bar-track{flex:1;height:9px;background:var(--bg-panel);border-radius:5px;overflow:hidden;}
+  .genre-bar-fill{height:100%;background:linear-gradient(90deg,var(--violet-dark),var(--lavender));border-radius:5px;}
+  .genre-count{font-size:12px;color:var(--lavender);width:24px;text-align:right;}
+  .rating-dist{display:flex;flex-direction:column;gap:8px;}
+  .rating-dist-row{display:flex;align-items:center;gap:10px;}
+  .rating-stars-dist{color:var(--gold);font-size:12px;width:66px;}
+  .rating-dist-bar{flex:1;height:9px;background:var(--bg-panel);border-radius:5px;overflow:hidden;}
+  .rating-dist-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light));border-radius:5px;}
+  .rating-dist-count{font-size:12px;color:var(--text-dim);width:20px;text-align:right;}
+  .moodboards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;}
+  .moodboard-card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:all 0.25s;}
+  .moodboard-card:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(176,127,212,0.25);border-color:var(--violet-light);}
+  .moodboard-header{padding:16px 18px 12px;}
+  .moodboard-book{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:var(--gold-light);margin-bottom:2px;}
+  .moodboard-author{font-size:12px;color:var(--text-dim);font-style:italic;}
+  .moodboard-images{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:0 3px;}
+  .moodboard-img-slot{aspect-ratio:1;background:var(--bg-panel);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px;overflow:hidden;}
+  .moodboard-img-slot img{width:100%;height:100%;object-fit:cover;}
+  .moodboard-palette{display:flex;gap:6px;padding:12px 18px;}
+  .palette-dot{width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.1);}
+  .moodboard-vibe{padding:0 18px 14px;}
+  .moodboard-vibe-text{font-size:13px;color:var(--text-dim);font-style:italic;line-height:1.5;}
+  .moodboard-tags-row{display:flex;flex-wrap:wrap;gap:4px;padding:0 18px 14px;border-top:1px solid var(--border);padding-top:10px;}
+  .moodboard-actions{display:flex;gap:6px;padding:10px 14px;border-top:1px solid var(--border);}
+  .color-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .color-swatch{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:border-color 0.2s;flex-shrink:0;}
+  .color-swatch.selected{border-color:white;}
+  .chars-tabs{display:flex;gap:0;margin-bottom:20px;border-bottom:1px solid var(--border);}
+  .char-tab{padding:10px 20px;background:none;border:none;color:var(--text-dim);cursor:pointer;font-family:'Crimson Text',serif;font-size:15px;border-bottom:3px solid transparent;transition:all 0.2s;}
+  .char-tab:hover{color:var(--lavender);}
+  .char-tab.active{color:var(--gold-light);border-bottom-color:var(--gold);}
+  .chars-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px;}
+  .char-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:all 0.25s;}
+  .char-card:hover{transform:translateY(-3px);box-shadow:0 6px 24px rgba(176,127,212,0.2);}
+  .char-card.amado{border-color:rgba(232,96,138,0.4);}
+  .char-card.odiado{border-color:rgba(192,96,128,0.4);}
+  .char-card.favorito{border-color:rgba(212,175,106,0.4);}
+  .char-top{padding:16px 16px 10px;display:flex;gap:12px;align-items:flex-start;}
+  .char-avatar{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;border:2px solid var(--border);}
+  .char-avatar.amado{background:rgba(232,96,138,0.15);border-color:rgba(232,96,138,0.4);}
+  .char-avatar.favorito{background:rgba(212,175,106,0.15);border-color:rgba(212,175,106,0.4);}
+  .char-avatar.odiado{background:rgba(192,96,128,0.15);border-color:rgba(192,96,128,0.4);}
+  .char-name{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--lavender-pale);margin-bottom:2px;}
+  .char-book{font-size:12px;color:var(--text-dim);font-style:italic;}
+  .char-type-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;margin-top:5px;}
+  .badge-favorito{background:rgba(212,175,106,0.2);color:var(--gold);border:1px solid rgba(212,175,106,0.4);}
+  .badge-amado{background:rgba(232,96,138,0.2);color:#f08098;border:1px solid rgba(232,96,138,0.4);}
+  .badge-odiado{background:rgba(192,96,128,0.2);color:var(--danger);border:1px solid rgba(192,96,128,0.3);}
+  .char-body{padding:0 16px 14px;}
+  .char-razon{font-size:14px;color:var(--text-main);line-height:1.6;font-style:italic;border-left:3px solid var(--violet-mid);padding-left:10px;margin-bottom:10px;}
+  .char-traits{display:flex;flex-wrap:wrap;gap:4px;}
+  .char-actions{display:flex;gap:6px;padding:8px 12px;border-top:1px solid var(--border);}
+  .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+  .section-title{font-family:'Cinzel Decorative',cursive;font-size:13px;color:var(--gold);letter-spacing:1px;}
+  .empty-state{text-align:center;padding:52px 20px;color:var(--text-dim);}
+  .empty-state .icon{font-size:44px;margin-bottom:14px;}
+  .empty-state h3{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--lavender);margin-bottom:7px;}
+  .empty-state p{font-size:13px;font-style:italic;}
+  .ornament{color:var(--violet-light);font-size:11px;letter-spacing:8px;text-align:center;margin:18px 0;opacity:0.4;}
+  .toast{position:fixed;bottom:22px;right:22px;background:var(--bg-panel);border:1px solid var(--violet-light);border-radius:10px;padding:12px 18px;color:var(--lavender-pale);font-size:14px;z-index:9999;transform:translateY(80px);opacity:0;transition:all 0.3s;box-shadow:0 8px 24px rgba(0,0,0,0.4);}
+  .toast.show{transform:translateY(0);opacity:1;}
+  /* LOADING OVERLAY */
+  .loading-overlay{display:none;position:fixed;inset:0;background:rgba(13,10,26,0.85);z-index:2000;align-items:center;justify-content:center;flex-direction:column;gap:16px;}
+  .loading-overlay.open{display:flex;}
+  .loading-spinner{width:48px;height:48px;border:3px solid var(--violet-dark);border-top-color:var(--lavender);border-radius:50%;animation:spin 0.8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .loading-text{font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--lavender);font-style:italic;}
+  ::-webkit-scrollbar{width:5px;}
+  ::-webkit-scrollbar-track{background:var(--bg-deep);}
+  ::-webkit-scrollbar-thumb{background:var(--violet-dark);border-radius:3px;}
+
+  /* ═══════════════════════════════════════════════════
+     NAVEGACIÓN RESPONSIVA — 3 dispositivos
+     ═══════════════════════════════════════════════════ */
+
+  /* ── ESCRITORIO (>1024px): sidebar completo ── */
+  @media(min-width:1025px){
+    .sidebar{width:220px;}
+    .main{margin-left:220px;padding:28px 32px;}
+    .bottom-nav{display:none;}
+    .stats-row{grid-template-columns:repeat(4,1fr);}
+    .form-grid{grid-template-columns:1fr 1fr;}
+  }
+
+  /* ── TABLET (481px–1024px): sidebar solo iconos ── */
+  @media(min-width:481px) and (max-width:1024px){
+    .sidebar{width:64px;}
+    .sidebar-logo h1,.nav-btn span:last-child,.nav-section-title,.sidebar-stats,.sync-status span:last-child{display:none;}
+    .sidebar-logo{padding:14px 8px;}
+    .sidebar-logo .icon-logo{font-size:26px;margin-bottom:0;}
+    .sync-status{justify-content:center;padding:8px 4px;}
+    .nav-btn{justify-content:center;padding:12px 8px;border-left-width:2px;}
+    .nav-btn .nav-icon{font-size:22px;min-width:unset;}
+    .main{margin-left:64px;padding:20px 18px;}
+    .bottom-nav{display:none;}
+    .stats-row{grid-template-columns:repeat(2,1fr);}
+    .form-grid{grid-template-columns:1fr 1fr;}
+  }
+
+  /* ── MÓVIL (≤480px): barra de navegación inferior ── */
+  @media(max-width:480px){
+    .sidebar{display:none;}
+    .main{margin-left:0;padding:14px 12px 84px;}
+    .bottom-nav{
+      display:flex;
+      position:fixed;bottom:0;left:0;right:0;
+      background:linear-gradient(0deg,#0d0a1a 0%,#130e25 100%);
+      border-top:1px solid rgba(176,127,212,0.35);
+      z-index:200;
+      justify-content:space-around;
+      align-items:flex-end;
+      padding:6px 0;
+      padding-bottom:max(8px,env(safe-area-inset-bottom));
+      box-shadow:0 -4px 20px rgba(0,0,0,0.4);
+    }
+    .bottom-nav-btn{
+      display:flex;flex-direction:column;align-items:center;gap:2px;
+      background:none;border:none;color:var(--text-dim);cursor:pointer;
+      padding:6px 8px 2px;border-radius:10px;transition:all 0.2s;
+      font-family:'Crimson Text',serif;min-width:48px;
+    }
+    .bottom-nav-btn .bnav-icon{font-size:22px;line-height:1;}
+    .bottom-nav-btn .bnav-label{font-size:9px;letter-spacing:0.3px;text-transform:uppercase;}
+    .bottom-nav-btn.active{color:var(--gold-light);}
+    .bottom-nav-btn.active .bnav-icon{
+      filter:drop-shadow(0 0 6px rgba(240,208,144,0.6));
+      transform:translateY(-2px);
+    }
+    .stats-row{grid-template-columns:repeat(2,1fr);gap:10px;}
+    .form-grid{grid-template-columns:1fr;}
+    .books-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;}
+    .page-title{font-size:16px;}
+    .page-header{flex-direction:column;align-items:flex-start;gap:8px;}
+    .page-subtitle{font-size:12px;}
+    .modal{padding:18px;width:95%;max-height:92vh;}
+    .modal h2{font-size:14px;margin-bottom:14px;}
+    .moodboards-grid{grid-template-columns:1fr;}
+    .chars-grid{grid-template-columns:1fr;}
+    .stats-overview{grid-template-columns:repeat(3,1fr);gap:10px;}
+    .big-stat .number{font-size:24px;}
+    .big-stat .icon{font-size:22px;margin-bottom:4px;}
+    .welcome-banner{padding:18px 16px;}
+    .welcome-banner h2{font-size:16px;}
+    .welcome-banner::before{display:none;}
+    .toast{bottom:80px;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <span class="icon-logo">📚</span>
+    <h1>Mi Biblioteca<br>Personal</h1>
+  </div>
+  <div class="sync-status" id="syncStatus">
+    <div class="sync-dot syncing" id="syncDot"></div>
+    <span id="syncText">Conectando...</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-title">Navegación</div>
+    <button class="nav-btn active" onclick="showPage('home')"><span class="nav-icon">🏠</span><span>Inicio</span></button>
+    <button class="nav-btn" onclick="showPage('biblioteca')"><span class="nav-icon">📚</span><span>Biblioteca</span></button>
+    <button class="nav-btn" onclick="showPage('tbr')"><span class="nav-icon">📋</span><span>TBR</span></button>
+    <button class="nav-btn" onclick="showPage('moodboard')"><span class="nav-icon">🎨</span><span>Moodboards</span></button>
+    <button class="nav-btn" onclick="showPage('personajes')"><span class="nav-icon">🎭</span><span>Personajes</span></button>
+    <button class="nav-btn" onclick="showPage('estadisticas')"><span class="nav-icon">📊</span><span>Estadísticas</span></button>
+  </nav>
+  <div class="sidebar-stats">
+    <div class="stat-mini"><span>📖 Leídos</span><span id="s-leidos">0</span></div>
+    <div class="stat-mini"><span>⏳ Leyendo</span><span id="s-leyendo">0</span></div>
+    <div class="stat-mini"><span>🌙 TBR</span><span id="s-tbr">0</span></div>
+    <div class="stat-mini"><span>🎭 Personajes</span><span id="s-chars">0</span></div>
+  </div>
+</aside>
+
+<!-- BARRA DE NAVEGACIÓN INFERIOR (solo móvil) -->
+<nav class="bottom-nav">
+  <button class="bottom-nav-btn active" onclick="showPage('home');setBottomNav(this)">
+    <span class="bnav-icon">🏠</span><span class="bnav-label">Inicio</span>
+  </button>
+  <button class="bottom-nav-btn" onclick="showPage('biblioteca');setBottomNav(this)">
+    <span class="bnav-icon">📚</span><span class="bnav-label">Libros</span>
+  </button>
+  <button class="bottom-nav-btn" onclick="showPage('tbr');setBottomNav(this)">
+    <span class="bnav-icon">📋</span><span class="bnav-label">TBR</span>
+  </button>
+  <button class="bottom-nav-btn" onclick="showPage('moodboard');setBottomNav(this)">
+    <span class="bnav-icon">🎨</span><span class="bnav-label">Mood</span>
+  </button>
+  <button class="bottom-nav-btn" onclick="showPage('personajes');setBottomNav(this)">
+    <span class="bnav-icon">🎭</span><span class="bnav-label">Persos</span>
+  </button>
+  <button class="bottom-nav-btn" onclick="showPage('estadisticas');setBottomNav(this)">
+    <span class="bnav-icon">📊</span><span class="bnav-label">Stats</span>
+  </button>
+</nav>
+
+<main class="main">
+  <!-- HOME -->
+  <div class="page active" id="page-home">
+    <div class="welcome-banner">
+      <h2>✨ Mi Biblioteca Personal</h2>
+      <p>Cada libro es un mundo. Cada página, una aventura que te pertenece.</p>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-icon">📖</div><span class="stat-number" id="home-total">0</span><div class="stat-label">Libros en total</div></div>
+      <div class="stat-card"><div class="stat-icon">✅</div><span class="stat-number" id="home-leidos">0</span><div class="stat-label">Leídos</div></div>
+      <div class="stat-card"><div class="stat-icon">📋</div><span class="stat-number" id="home-tbr">0</span><div class="stat-label">En TBR</div></div>
+      <div class="stat-card"><div class="stat-icon">⭐</div><span class="stat-number" id="home-avg">—</span><div class="stat-label">Rating promedio</div></div>
+    </div>
+    <div class="ornament">✦ ✧ ✦ ✧ ✦</div>
+    <div class="section-header"><div class="section-title">📖 Leyendo ahora</div></div>
+    <div id="home-reading" class="books-grid"></div>
+    <div class="section-header" style="margin-top:24px;"><div class="section-title">🌟 Últimas lecturas</div><button class="btn btn-ghost btn-sm" onclick="showPage('biblioteca')">Ver todas →</button></div>
+    <div id="home-recent" class="books-grid"></div>
+  </div>
+
+  <!-- BIBLIOTECA -->
+  <div class="page" id="page-biblioteca">
+    <div class="page-header">
+      <div><div class="page-title">📚 Biblioteca</div><div class="page-subtitle">Todos mis libros en un solo lugar</div></div>
+      <button class="btn btn-primary" onclick="openAddModal()">✦ Agregar libro</button>
+    </div>
+    <div class="search-bar">
+      <input type="text" class="search-input" id="searchInput" placeholder="🔍 Buscar por título, autor o género..." oninput="renderLibrary()">
+      <select class="filter-select" id="filterStatus" onchange="renderLibrary()">
+        <option value="">Todos los estados</option>
+        <option value="leido">Leído</option><option value="leyendo">Leyendo</option>
+        <option value="pendiente">Pendiente</option><option value="abandonado">Abandonado</option>
+      </select>
+      <select class="filter-select" id="filterGenre" onchange="renderLibrary()"><option value="">Todos los géneros</option></select>
+      <select class="filter-select" id="sortBy" onchange="renderLibrary()">
+        <option value="reciente">Más reciente</option><option value="titulo">Título A-Z</option>
+        <option value="rating">Mayor rating</option><option value="autor">Autor A-Z</option>
+      </select>
+    </div>
+    <div id="library-grid" class="books-grid"></div>
+  </div>
+
+  <!-- TBR -->
+  <div class="page" id="page-tbr">
+    <div class="page-header">
+      <div><div class="page-title">📋 TBR — To Be Read</div><div class="page-subtitle">Mi lista de pendientes</div></div>
+      <button class="btn btn-primary" onclick="openTBRModal()">✦ Agregar al TBR</button>
+    </div>
+    <div class="search-bar">
+      <input type="text" class="search-input" id="tbrSearch" placeholder="🔍 Buscar en TBR..." oninput="renderTBR()" style="max-width:340px;">
+      <select class="filter-select" id="tbrPriority" onchange="renderTBR()">
+        <option value="">Todas las prioridades</option>
+        <option value="alta">Alta</option><option value="media">Media</option><option value="baja">Baja</option>
+      </select>
+    </div>
+    <div id="tbr-list" class="tbr-list"></div>
+  </div>
+
+  <!-- MOODBOARD -->
+  <div class="page" id="page-moodboard">
+    <div class="page-header">
+      <div><div class="page-title">🎨 Moodboards</div><div class="page-subtitle">El universo visual de cada libro</div></div>
+      <button class="btn btn-primary" onclick="openMoodModal()">✦ Nuevo moodboard</button>
+    </div>
+    <div class="search-bar">
+      <input type="text" class="search-input" id="moodSearch" placeholder="🔍 Buscar moodboard..." oninput="renderMoodboards()" style="max-width:340px;">
+    </div>
+    <div id="moodboards-grid" class="moodboards-grid"></div>
+  </div>
+
+  <!-- PERSONAJES -->
+  <div class="page" id="page-personajes">
+    <div class="page-header">
+      <div><div class="page-title">🎭 Personajes</div><div class="page-subtitle">Los que amé, los que odié y los que jamás olvidaré</div></div>
+      <button class="btn btn-primary" onclick="openCharModal()">✦ Agregar personaje</button>
+    </div>
+    <div class="search-bar">
+      <input type="text" class="search-input" id="charSearch" placeholder="🔍 Buscar personaje..." oninput="renderChars()" style="max-width:300px;">
+    </div>
+    <div class="chars-tabs">
+      <button class="char-tab active" onclick="setCharTab('todos')">Todos</button>
+      <button class="char-tab" onclick="setCharTab('favorito')">🥰 Favoritos</button>
+      <button class="char-tab" onclick="setCharTab('amado')">💗 Amados</button>
+      <button class="char-tab" onclick="setCharTab('odiado')">🖤 Despreciados</button>
+    </div>
+    <div id="chars-grid" class="chars-grid"></div>
+  </div>
+
+  <!-- ESTADÍSTICAS -->
+  <div class="page" id="page-estadisticas">
+    <div class="page-header">
+      <div><div class="page-title">📊 Estadísticas</div><div class="page-subtitle">El mapa de tu vida lectora</div></div>
+    </div>
+    <div class="stats-overview" id="stats-overview"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div class="card"><div class="section-title" style="margin-bottom:14px;">📚 Por género</div><div class="genre-chart" id="genre-chart"></div></div>
+      <div class="card"><div class="section-title" style="margin-bottom:14px;">⭐ Distribución de ratings</div><div class="rating-dist" id="rating-dist"></div></div>
+    </div>
+    <div class="card" style="margin-top:20px;"><div class="section-title" style="margin-bottom:14px;">🏆 Mis favoritos</div><div id="stats-favorites"></div></div>
+  </div>
+</main>
+</div>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text" id="loadingText">Sincronizando con Google Sheets...</div>
+</div>
+
+<!-- MODAL LIBRO -->
+<div class="modal-overlay" id="bookModal">
+  <div class="modal">
+    <h2 id="modalTitle">✦ Agregar Libro</h2>
+    <div class="form-grid">
+      <div class="form-group form-full"><label class="form-label">Título *</label><input type="text" class="form-input" id="f-titulo" placeholder="Título del libro"></div>
+      <div class="form-group"><label class="form-label">Autor/a *</label><input type="text" class="form-input" id="f-autor" placeholder="Nombre del autor"></div>
+      <div class="form-group"><label class="form-label">Género</label><input type="text" class="form-input" id="f-genero" placeholder="Ej: Fantasía, Romance..."></div>
+      <div class="form-group"><label class="form-label">Saga / Serie</label><input type="text" class="form-input" id="f-saga" placeholder="Nombre de la saga"></div>
+      <div class="form-group"><label class="form-label">N° de páginas</label><input type="number" class="form-input" id="f-paginas" placeholder="000"></div>
+      <div class="form-group"><label class="form-label">Estado</label>
+        <select class="form-select" id="f-estado">
+          <option value="pendiente">⏳ Pendiente</option><option value="leyendo">📖 Leyendo</option>
+          <option value="leido">✅ Leído</option><option value="abandonado">✗ Abandonado</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Fecha inicio</label><input type="date" class="form-input" id="f-inicio"></div>
+      <div class="form-group"><label class="form-label">Fecha término</label><input type="date" class="form-input" id="f-termino"></div>
+      <div class="form-group"><label class="form-label">Tropes / Etiquetas</label><input type="text" class="form-input" id="f-tropes" placeholder="magia, misterio, romance..."></div>
+      <div class="form-group"><label class="form-label">Editorial</label><input type="text" class="form-input" id="f-editorial" placeholder="Editorial (opcional)"></div>
+      <div class="form-group form-full"><label class="form-label">🖼️ URL de portada (opcional)</label><input type="url" class="form-input" id="f-portada" placeholder="https://... pega el link de la imagen de la portada"></div>
+      <div class="form-group form-full"><label class="form-label">Rating general</label>
+        <div class="star-picker" id="star-general"><span onclick="setRating('general',1)">★</span><span onclick="setRating('general',2)">★</span><span onclick="setRating('general',3)">★</span><span onclick="setRating('general',4)">★</span><span onclick="setRating('general',5)">★</span></div>
+      </div>
+      <div class="form-group form-full">
+        <label class="form-label" style="margin-bottom:10px;">Evaluaciones detalladas</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div><label class="form-label" style="margin-bottom:5px;">Personajes</label><div class="star-picker" id="star-personajes"><span onclick="setRating('personajes',1)">★</span><span onclick="setRating('personajes',2)">★</span><span onclick="setRating('personajes',3)">★</span><span onclick="setRating('personajes',4)">★</span><span onclick="setRating('personajes',5)">★</span></div></div>
+          <div><label class="form-label" style="margin-bottom:5px;">Worldbuilding</label><div class="star-picker" id="star-mundo"><span onclick="setRating('mundo',1)">★</span><span onclick="setRating('mundo',2)">★</span><span onclick="setRating('mundo',3)">★</span><span onclick="setRating('mundo',4)">★</span><span onclick="setRating('mundo',5)">★</span></div></div>
+          <div><label class="form-label" style="margin-bottom:5px;">Trama</label><div class="star-picker" id="star-trama"><span onclick="setRating('trama',1)">★</span><span onclick="setRating('trama',2)">★</span><span onclick="setRating('trama',3)">★</span><span onclick="setRating('trama',4)">★</span><span onclick="setRating('trama',5)">★</span></div></div>
+          <div><label class="form-label" style="margin-bottom:5px;">Prosa</label><div class="star-picker" id="star-prosa"><span onclick="setRating('prosa',1)">★</span><span onclick="setRating('prosa',2)">★</span><span onclick="setRating('prosa',3)">★</span><span onclick="setRating('prosa',4)">★</span><span onclick="setRating('prosa',5)">★</span></div></div>
+        </div>
+      </div>
+      <div class="form-group form-full"><label class="form-label">Reseña / Opinión personal</label><textarea class="form-textarea" id="f-resena" placeholder="¿Qué te pareció? ¿Qué sentiste?"></textarea></div>
+      <div class="form-group form-full"><label class="form-label">Cita o frase favorita</label><textarea class="form-textarea" id="f-cita" placeholder="Tu cita favorita..."></textarea></div>
+      <div class="form-group"><label class="form-label">Personaje favorito</label><input type="text" class="form-input" id="f-personaje" placeholder="Nombre"></div>
+      <div class="form-group"><label class="form-label">¿Lo recomendarías a?</label><input type="text" class="form-input" id="f-recomienda" placeholder="Ej: amantes del romance..."></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeBookModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveBook()">✦ Guardar libro</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETALLE -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal" style="max-width:680px;">
+    <div id="detail-content"></div>
+    <div class="modal-actions">
+      <button class="btn btn-danger btn-sm" id="detail-delete-btn">Eliminar</button>
+      <button class="btn btn-ghost" id="detail-edit-btn">✏️ Editar</button>
+      <button class="btn btn-ghost" onclick="closeDetailModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TBR -->
+<div class="modal-overlay" id="tbrModal">
+  <div class="modal" style="max-width:460px;">
+    <h2>📋 Agregar al TBR</h2>
+    <div style="display:flex;flex-direction:column;gap:13px;">
+      <div class="form-group"><label class="form-label">Título *</label><input type="text" class="form-input" id="tbr-titulo" placeholder="Título del libro"></div>
+      <div class="form-group"><label class="form-label">Autor/a</label><input type="text" class="form-input" id="tbr-autor" placeholder="Nombre del autor"></div>
+      <div class="form-group"><label class="form-label">Género</label><input type="text" class="form-input" id="tbr-genero" placeholder="Ej: Fantasía"></div>
+      <div class="form-group"><label class="form-label">Prioridad</label>
+        <select class="form-select" id="tbr-prioridad"><option value="alta">🔥 Alta</option><option value="media" selected>⭐ Media</option><option value="baja">🌙 Baja</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">¿Por qué quiero leerlo?</label><textarea class="form-textarea" id="tbr-razon" placeholder="Razón, recomendación, hype..."></textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeTBRModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveTBR()">✦ Agregar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL MOODBOARD -->
+<div class="modal-overlay" id="moodModal">
+  <div class="modal" style="max-width:560px;">
+    <h2 id="moodModalTitle">🎨 Nuevo Moodboard</h2>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="form-group"><label class="form-label">Libro *</label><input type="text" class="form-input" id="mood-libro" placeholder="Título del libro"></div>
+      <div class="form-group"><label class="form-label">Autor</label><input type="text" class="form-input" id="mood-autor" placeholder="Autor"></div>
+      <div class="form-group">
+        <label class="form-label">Paleta de colores</label>
+        <div class="color-row" id="mood-palette-picker">
+          <div class="color-swatch" style="background:#3d1f7a" data-color="#3d1f7a" onclick="togglePaletteColor(this)"></div>
+          <div class="color-swatch" style="background:#6b3fa0" data-color="#6b3fa0" onclick="togglePaletteColor(this)"></div>
+          <div class="color-swatch" style="background:#c8b4e8" data-color="#c8b4e8" onclick="togglePaletteColor(this)"></div>
+          <div class="color-swatch" style="background:#d4af6a" data-color="#d4af6a" onclick="togglePaletteColor(this)"></div>
+          <div class="color-swatch" style="background:#e8608a" data-color="#e8608a" onclick="togglePaletteColor(this)"></div>
+          <div class="color-swatch" style="background:#c06080" data-color="#c06080" onclick="togglePaletteColor(this)"></div>
+          <div class="color-swatch" style="background:#70b090" data-color="#70b090" onclick="togglePaletteColor(this)"></div>
+          <div class="color-swatch" style="background:#1a3a5a" data-color="#1a3a5a" onclick="togglePaletteColor(this)"></div>
+          <div class="color-swatch" style="background:#8b4513" data-color="#8b4513" onclick="togglePaletteColor(this)"></div>
+          <div class="color-swatch" style="background:#f5f0e8" data-color="#f5f0e8" onclick="togglePaletteColor(this)"></div>
+          <div class="color-swatch" style="background:#1a1a2e" data-color="#1a1a2e" onclick="togglePaletteColor(this)"></div>
+          <input type="color" title="Color personalizado" onchange="addCustomColor(this.value)" style="width:26px;height:26px;border-radius:50%;cursor:pointer;border:1px dashed var(--border);background:none;padding:0;">
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Palabras clave / Vibes</label><input type="text" class="form-input" id="mood-vibes" placeholder="oscuro, romántico, épico, misterioso..."></div>
+      <div class="form-group"><label class="form-label">Atmósfera del libro</label><textarea class="form-textarea" id="mood-descripcion" placeholder="¿Qué sensación te dejó? ¿A qué huele, qué colores tiene?"></textarea></div>
+      <div class="form-group"><label class="form-label">Emojis representativos</label><input type="text" class="form-input" id="mood-emojis" placeholder="🌙 🗡️✏️ 🌿 🕯️✏️ ❄️✏️ ..."></div>
+      <div class="form-group"><label class="form-label">URLs de imágenes (una por línea)</label><textarea class="form-textarea" id="mood-urls" placeholder="https://... (pega URLs de imágenes de Pinterest, Google, etc.)" style="min-height:70px;"></textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeMoodModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveMood()">✦ Guardar moodboard</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETALLE MOODBOARD -->
+<div class="modal-overlay" id="moodDetailModal">
+  <div class="modal" style="max-width:700px;">
+    <div id="mood-detail-content"></div>
+    <div class="modal-actions">
+      <button class="btn btn-danger btn-sm" id="mood-delete-btn">Eliminar</button>
+      <button class="btn btn-ghost" id="mood-edit-btn">✏️ Editar</button>
+      <button class="btn btn-ghost" onclick="closeMoodDetail()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PERSONAJE -->
+<div class="modal-overlay" id="charModal">
+  <div class="modal" style="max-width:520px;">
+    <h2 id="charModalTitle">🎭 Agregar Personaje</h2>
+    <div style="display:flex;flex-direction:column;gap:13px;">
+      <div class="form-group"><label class="form-label">Nombre del personaje *</label><input type="text" class="form-input" id="char-nombre" placeholder="Nombre del personaje"></div>
+      <div class="form-group"><label class="form-label">Libro donde aparece *</label><input type="text" class="form-input" id="char-libro" placeholder="Título del libro o saga"></div>
+      <div class="form-group"><label class="form-label">Autor/a</label><input type="text" class="form-input" id="char-autor" placeholder="Autor del libro"></div>
+      <div class="form-group">
+        <label class="form-label">¿Cómo te hace sentir?</label>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button type="button" class="btn btn-ghost btn-sm char-type-btn" data-type="favorito" onclick="selectCharType('favorito')">🥰 Favorito</button>
+          <button type="button" class="btn btn-ghost btn-sm char-type-btn" data-type="amado" onclick="selectCharType('amado')">💗 Lo amo</button>
+          <button type="button" class="btn btn-ghost btn-sm char-type-btn" data-type="odiado" onclick="selectCharType('odiado')">🖤 Lo desprecio</button>
+        </div>
+        <input type="hidden" id="char-tipo" value="favorito">
+      </div>
+      <div class="form-group"><label class="form-label">Emoji que lo representa</label><input type="text" class="form-input" id="char-emoji" placeholder="🗡️✏️ 🌙 🔮 🐉 ..." maxlength="4"></div>
+      <div class="form-group"><label class="form-label">¿Por qué lo amas / odias? ✦</label><textarea class="form-textarea" id="char-razon" placeholder="Cuéntame todo. ¿Qué tiene este personaje que te marcó?" style="min-height:100px;"></textarea></div>
+      <div class="form-group"><label class="form-label">Escena o momento favorito</label><textarea class="form-textarea" id="char-momento" placeholder="La escena que jamás olvidarás..."></textarea></div>
+      <div class="form-group"><label class="form-label">Rasgos / adjetivos que lo definen</label><input type="text" class="form-input" id="char-rasgos" placeholder="valiente, traicionero, leal, complejo..."></div>
+      <div class="form-group"><label class="form-label">Cita de/sobre este personaje</label><textarea class="form-textarea" id="char-cita" placeholder="Su frase favorita..."></textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeCharModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveChar()">✦ Guardar personaje</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxSqXz4deBcONSQDoC7wH2yP3WeYVf3phFgALdR5d5VE72JH9DAb1ccoOJ5OzcF9TxuzA/exec';
+const EMOJIS = ['📚','🌙','✨','🔮','🌿','🏰','🕯️','🌹','🐉','💗','🗡️','🌺'];
+
+let books = [];
+let tbrItems = [];
+let moodboards = [];
+let characters = [];
+let editingBookId = null;
+let editingMoodId = null;
+let editingCharId = null;
+let currentCharTab = 'todos';
+const ratings = {general:0,personajes:0,mundo:0,trama:0,prosa:0};
+let selectedPalette = [];
+let isSyncing = false;
+
+// ── BOTTOM NAV ───────────────────────────────────────────────────────────────
+function setBottomNav(btn) {
+  document.querySelectorAll('.bottom-nav-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ── SYNC ─────────────────────────────────────────────────────────────────────
+function setSyncStatus(state, text) {
+  const dot = document.getElementById('syncDot');
+  const txt = document.getElementById('syncText');
+  dot.className = 'sync-dot ' + state;
+  txt.textContent = text;
+}
+
+function showLoading(text) {
+  document.getElementById('loadingText').textContent = text || 'Sincronizando...';
+  document.getElementById('loadingOverlay').classList.add('open');
+}
+
+function hideLoading() {
+  document.getElementById('loadingOverlay').classList.remove('open');
+}
+
+async function fetchSheet(tab) {
+  const res = await fetch(`${SCRIPT_URL}?tab=${tab}&t=${Date.now()}`);
+  const rows = await res.json();
+  return rows;
+}
+
+async function pushSheet(tab, data) {
+  await fetch(SCRIPT_URL, {
+    method: 'POST',
+    body: JSON.stringify({tab, data}),
+  });
+}
+
+function rowToBook(r) {
+  if(!r[0]) return null;
+  return {
+    id:Number(r[0]), titulo:r[1]||'', autor:r[2]||'', genero:r[3]||'', saga:r[4]||'',
+    paginas:r[5]||'', estado:r[6]||'pendiente', fecha_inicio:r[7]||'', fecha_termino:r[8]||'',
+    tropes:r[9]||'', editorial:r[10]||'', resena:r[11]||'', cita:r[12]||'',
+    personaje_fav:r[13]||'', recomienda:r[14]||'',
+    rating_general:Number(r[15])||0, rating_personajes:Number(r[16])||0,
+    rating_mundo:Number(r[17])||0, rating_trama:Number(r[18])||0, rating_prosa:Number(r[19])||0,
+    portada:r[20]||'',
+  };
+}
+function bookToRow(b) {
+  return [b.id,b.titulo,b.autor,b.genero,b.saga,b.paginas,b.estado,b.fecha_inicio,b.fecha_termino,
+    b.tropes,b.editorial,b.resena,b.cita,b.personaje_fav,b.recomienda,
+    b.rating_general,b.rating_personajes,b.rating_mundo,b.rating_trama,b.rating_prosa,
+    b.portada||''];
+}
+
+function rowToTBR(r) {
+  if(!r[0]) return null;
+  return {id:Number(r[0]),titulo:r[1]||'',autor:r[2]||'',genero:r[3]||'',prioridad:r[4]||'media',razon:r[5]||''};
+}
+function tbrToRow(t) { return [t.id,t.titulo,t.autor,t.genero,t.prioridad,t.razon]; }
+
+function rowToMood(r) {
+  if(!r[0]) return null;
+  return {id:Number(r[0]),libro:r[1]||'',autor:r[2]||'',vibes:r[3]||'',descripcion:r[4]||'',emojis:r[5]||'',
+    urls:r[6]?r[6].split('||'):[], palette:r[7]?r[7].split('||'):[]};
+}
+function moodToRow(m) { return [m.id,m.libro,m.autor,m.vibes,m.descripcion,m.emojis,(m.urls||[]).join('||'),(m.palette||[]).join('||')]; }
+
+function rowToChar(r) {
+  if(!r[0]) return null;
+  return {id:Number(r[0]),nombre:r[1]||'',libro:r[2]||'',autor:r[3]||'',tipo:r[4]||'favorito',
+    emoji:r[5]||'🎭',razon:r[6]||'',momento:r[7]||'',rasgos:r[8]||'',cita:r[9]||''};
+}
+function charToRow(c) { return [c.id,c.nombre,c.libro,c.autor,c.tipo,c.emoji,c.razon,c.momento,c.rasgos,c.cita]; }
+
+async function loadAll() {
+  setSyncStatus('syncing','Cargando datos...');
+  try {
+    const [bRows, tRows, mRows, cRows] = await Promise.all([
+      fetchSheet('Libros'), fetchSheet('TBR'), fetchSheet('Moodboards'), fetchSheet('Personajes')
+    ]);
+    books = bRows.map(rowToBook).filter(Boolean);
+    tbrItems = tRows.map(rowToTBR).filter(Boolean);
+    moodboards = mRows.map(rowToMood).filter(Boolean);
+    characters = cRows.map(rowToChar).filter(Boolean);
+    setSyncStatus('synced','Sincronizado ✓');
+    renderHome();
+    showToast('✨ Datos cargados desde Google Sheets');
+  } catch(e) {
+    setSyncStatus('error','Sin conexión');
+    showToast('⚠️ No se pudo conectar con Google Sheets');
+  }
+}
+
+async function saveBooks() {
+  setSyncStatus('syncing','Guardando...');
+  try {
+    await pushSheet('Libros', books.map(bookToRow));
+    setSyncStatus('synced','Sincronizado ✓');
+  } catch(e) { setSyncStatus('error','Error al guardar'); }
+}
+async function saveTBRSheet() {
+  setSyncStatus('syncing','Guardando...');
+  try { await pushSheet('TBR', tbrItems.map(tbrToRow)); setSyncStatus('synced','Sincronizado ✓'); }
+  catch(e) { setSyncStatus('error','Error al guardar'); }
+}
+async function saveMoodsSheet() {
+  setSyncStatus('syncing','Guardando...');
+  try { await pushSheet('Moodboards', moodboards.map(moodToRow)); setSyncStatus('synced','Sincronizado ✓'); }
+  catch(e) { setSyncStatus('error','Error al guardar'); }
+}
+async function saveCharsSheet() {
+  setSyncStatus('syncing','Guardando...');
+  try { await pushSheet('Personajes', characters.map(charToRow)); setSyncStatus('synced','Sincronizado ✓'); }
+  catch(e) { setSyncStatus('error','Error al guardar'); }
+}
+
+// ── NAVIGATION ───────────────────────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>{if(b.getAttribute('onclick')?.includes("'"+name+"'"))b.classList.add('active');});
+  const actions={biblioteca:()=>{renderLibrary();populateGenreFilter();},home:renderHome,tbr:renderTBR,moodboard:renderMoodboards,personajes:renderChars,estadisticas:renderStats};
+  if(actions[name]) actions[name]();
+}
+
+// ── HOME ─────────────────────────────────────────────────────────────────────
+function renderHome() {
+  const leidos=books.filter(b=>b.estado==='leido');
+  const leyendo=books.filter(b=>b.estado==='leyendo');
+  const withR=leidos.filter(b=>b.rating_general>0);
+  const avg=withR.length?(withR.reduce((s,b)=>s+b.rating_general,0)/withR.length).toFixed(1):'—';
+  document.getElementById('home-total').textContent=books.length;
+  document.getElementById('home-leidos').textContent=leidos.length;
+  document.getElementById('home-tbr').textContent=tbrItems.length;
+  document.getElementById('home-avg').textContent=avg;
+  document.getElementById('s-leidos').textContent=leidos.length;
+  document.getElementById('s-leyendo').textContent=leyendo.length;
+  document.getElementById('s-tbr').textContent=tbrItems.length;
+  document.getElementById('s-chars').textContent=characters.length;
+  document.getElementById('home-reading').innerHTML=leyendo.length?leyendo.map(b=>bookCardHTML(b)).join(''):'<p style="color:var(--text-dim);font-style:italic;">No estás leyendo nada actualmente</p>';
+  const recent=[...leidos].sort((a,b)=>(b.id||0)-(a.id||0)).slice(0,4);
+  document.getElementById('home-recent').innerHTML=recent.length?recent.map(b=>bookCardHTML(b)).join(''):'<div class="empty-state"><div class="icon">🌙</div><h3>Tu biblioteca está vacía</h3><p>Agrega tu primer libro para comenzar</p></div>';
+}
+
+// ── LIBRARY ───────────────────────────────────────────────────────────────────
+function renderLibrary() {
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  const status=document.getElementById('filterStatus').value;
+  const genre=document.getElementById('filterGenre').value;
+  const sort=document.getElementById('sortBy').value;
+  let list=[...books];
+  if(q) list=list.filter(b=>b.titulo.toLowerCase().includes(q)||b.autor.toLowerCase().includes(q)||(b.genero||'').toLowerCase().includes(q));
+  if(status) list=list.filter(b=>b.estado===status);
+  if(genre) list=list.filter(b=>(b.genero||'').toLowerCase()===genre.toLowerCase());
+  if(sort==='titulo') list.sort((a,b)=>a.titulo.localeCompare(b.titulo));
+  else if(sort==='rating') list.sort((a,b)=>(b.rating_general||0)-(a.rating_general||0));
+  else if(sort==='autor') list.sort((a,b)=>a.autor.localeCompare(b.autor));
+  else list.sort((a,b)=>(b.id||0)-(a.id||0));
+  const grid=document.getElementById('library-grid');
+  if(!list.length){grid.innerHTML=`<div class="empty-state" style="grid-column:1/-1"><div class="icon">🔮</div><h3>${books.length?'Sin resultados':'Biblioteca vacía'}</h3><p>${books.length?'Intenta otros filtros':'Agrega tu primer libro con el botón ✦'}</p></div>`;return;}
+  grid.innerHTML=list.map(b=>bookCardHTML(b)).join('');
+}
+
+function populateGenreFilter() {
+  const genres=[...new Set(books.map(b=>b.genero).filter(Boolean))];
+  const sel=document.getElementById('filterGenre');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">Todos los géneros</option>'+genres.map(g=>`<option value="${g}">${g}</option>`).join('');
+  sel.value=cur;
+}
+
+function bookCardHTML(b) {
+  const stars=starsHTML(b.rating_general||0);
+  const tags=b.tropes?b.tropes.split(',').slice(0,3).map(t=>`<span class="tag">${t.trim()}</span>`).join(''):'';
+  const statusLabel={leido:'✅ Leído',leyendo:'📖 Leyendo',pendiente:'⏳ Pendiente',abandonado:'✗ Abandonado'}[b.estado];
+  const cover=EMOJIS[b.id%EMOJIS.length];
+  const coverHTML=b.portada
+    ?`<img src="${b.portada}" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;" onerror="this.style.display='none'">`
+    :`<span style="font-size:55px;">${cover}</span>`;
+  return `<div class="book-card" onclick="openDetail(${b.id})">
+    <div class="book-cover" style="background:linear-gradient(135deg,#1a1330,#3d1f7a);position:relative;overflow:hidden;">${coverHTML}<span class="book-status-badge status-${b.estado}">${statusLabel}</span></div>
+    <div class="book-info"><div class="book-title">${b.titulo}</div><div class="book-author">${b.autor}</div><div class="star-rating">${stars}</div><div class="book-tags">${tags}</div></div>
+    <div class="book-card-actions"><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();editBook(${b.id})">✏️ Editar</button></div>
+  </div>`;
+}
+
+function starsHTML(n){return Array.from({length:5},(_,i)=>`<span class="${i<n?'':'empty'}">★</span>`).join('');}
+
+// ── ADD/EDIT BOOK ─────────────────────────────────────────────────────────────
+function openAddModal(){editingBookId=null;document.getElementById('modalTitle').textContent='✦ Agregar Libro';clearBookForm();document.getElementById('bookModal').classList.add('open');}
+
+function editBook(id){
+  const b=books.find(b=>b.id===id);if(!b)return;
+  editingBookId=id;closeDetailModal();
+  document.getElementById('modalTitle').textContent='✏️ Editar Libro';
+  document.getElementById('f-titulo').value=b.titulo;document.getElementById('f-autor').value=b.autor;
+  document.getElementById('f-genero').value=b.genero||'';document.getElementById('f-saga').value=b.saga||'';
+  document.getElementById('f-paginas').value=b.paginas||'';document.getElementById('f-estado').value=b.estado;
+  document.getElementById('f-inicio').value=b.fecha_inicio||'';document.getElementById('f-termino').value=b.fecha_termino||'';
+  document.getElementById('f-tropes').value=b.tropes||'';document.getElementById('f-editorial').value=b.editorial||'';
+  document.getElementById('f-resena').value=b.resena||'';document.getElementById('f-cita').value=b.cita||'';
+  document.getElementById('f-personaje').value=b.personaje_fav||'';document.getElementById('f-recomienda').value=b.recomienda||'';document.getElementById('f-portada').value=b.portada||'';
+  ['general','personajes','mundo','trama','prosa'].forEach(f=>{ratings[f]=b['rating_'+f]||0;updateStars(f);});
+  document.getElementById('bookModal').classList.add('open');
+}
+
+function clearBookForm(){
+  ['titulo','autor','genero','saga','editorial','tropes','resena','cita','personaje','recomienda','portada'].forEach(f=>document.getElementById('f-'+f).value='');
+  document.getElementById('f-paginas').value='';document.getElementById('f-inicio').value='';document.getElementById('f-termino').value='';
+  document.getElementById('f-estado').value='pendiente';
+  ['general','personajes','mundo','trama','prosa'].forEach(f=>{ratings[f]=0;updateStars(f);});
+}
+
+function closeBookModal(){document.getElementById('bookModal').classList.remove('open');}
+
+async function saveBook(){
+  const titulo=document.getElementById('f-titulo').value.trim();
+  const autor=document.getElementById('f-autor').value.trim();
+  if(!titulo||!autor){showToast('⚠️ Título y autor son obligatorios');return;}
+  const book={
+    id:editingBookId!==null?editingBookId:Date.now(),titulo,autor,
+    genero:document.getElementById('f-genero').value.trim(),saga:document.getElementById('f-saga').value.trim(),
+    paginas:document.getElementById('f-paginas').value,estado:document.getElementById('f-estado').value,
+    fecha_inicio:document.getElementById('f-inicio').value,fecha_termino:document.getElementById('f-termino').value,
+    tropes:document.getElementById('f-tropes').value.trim(),editorial:document.getElementById('f-editorial').value.trim(),
+    resena:document.getElementById('f-resena').value.trim(),cita:document.getElementById('f-cita').value.trim(),
+    personaje_fav:document.getElementById('f-personaje').value.trim(),recomienda:document.getElementById('f-recomienda').value.trim(),portada:document.getElementById('f-portada').value.trim(),
+    rating_general:ratings.general,rating_personajes:ratings.personajes,rating_mundo:ratings.mundo,rating_trama:ratings.trama,rating_prosa:ratings.prosa,
+  };
+  if(editingBookId!==null){books=books.map(b=>b.id===editingBookId?book:b);}
+  else{books.unshift(book);}
+  closeBookModal();renderLibrary();renderHome();populateGenreFilter();
+  showToast('✨ Guardando en Google Sheets...');
+  await saveBooks();
+  showToast('✅ Libro guardado');
+}
+
+function setRating(field,value){ratings[field]=value;updateStars(field);}
+function updateStars(field){const p=document.getElementById('star-'+field);if(!p)return;p.querySelectorAll('span').forEach((s,i)=>s.classList.toggle('lit',i<ratings[field]));}
+
+function openDetail(id){
+  const b=books.find(b=>b.id===id);if(!b)return;
+  const cover=EMOJIS[b.id%EMOJIS.length];
+  const statusLabel={leido:'✅ Leído',leyendo:'📖 Leyendo',pendiente:'⏳ Pendiente',abandonado:'✗ Abandonado'}[b.estado];
+  const ratingBars=[{label:'Personajes',val:b.rating_personajes||0},{label:'Worldbuilding',val:b.rating_mundo||0},{label:'Trama',val:b.rating_trama||0},{label:'Prosa',val:b.rating_prosa||0}]
+    .map(r=>`<div class="rating-bar-row"><div class="rating-bar-label">${r.label}</div><div class="rating-bar-track"><div class="rating-bar-fill" style="width:${r.val*20}%"></div></div><div class="rating-bar-num">${r.val||'—'}</div></div>`).join('');
+  document.getElementById('detail-content').innerHTML=`
+    <h2>${b.titulo}</h2>
+    <div class="book-detail-header">
+      <div class="book-detail-cover" style="background:linear-gradient(135deg,#1a1330,#3d1f7a);">${cover}</div>
+      <div class="book-detail-info">
+        <div class="book-detail-title">${b.titulo}</div><div class="book-detail-author">por ${b.autor}</div>
+        <div class="star-rating" style="font-size:18px;margin-bottom:8px;">${starsHTML(b.rating_general||0)}</div>
+        <span class="book-status-badge status-${b.estado}" style="position:static;display:inline-block;">${statusLabel}</span>
+        ${b.genero?`<span class="tag" style="margin-left:6px;">${b.genero}</span>`:''}${b.saga?`<span class="tag">📖 ${b.saga}</span>`:''}
+      </div>
+    </div>
+    ${b.tropes?`<div style="margin-bottom:12px;">${b.tropes.split(',').map(t=>`<span class="tag">${t.trim()}</span>`).join(' ')}</div>`:''}
+    ${b.fecha_inicio||b.fecha_termino?`<div class="detail-row"><span class="detail-label">Fechas</span><span class="detail-value">${b.fecha_inicio||'—'} → ${b.fecha_termino||'en curso'}</span></div>`:''}
+    ${b.paginas?`<div class="detail-row"><span class="detail-label">Páginas</span><span class="detail-value">${b.paginas}</span></div>`:''}
+    ${b.personaje_fav?`<div class="detail-row"><span class="detail-label">Personaje 🥰</span><span class="detail-value">${b.personaje_fav}</span></div>`:''}
+    ${b.recomienda?`<div class="detail-row"><span class="detail-label">Recomendado a</span><span class="detail-value">${b.recomienda}</span></div>`:''}
+    ${b.resena?`<div style="margin:14px 0;padding:12px;background:var(--bg-panel);border-radius:8px;border-left:3px solid var(--violet-light);"><div class="detail-label" style="margin-bottom:5px;">Mi reseña</div><div style="font-style:italic;line-height:1.6;">${b.resena}</div></div>`:''}
+    ${b.cita?`<div style="margin:10px 0;padding:12px;background:rgba(212,175,106,0.08);border-radius:8px;border-left:3px solid var(--gold);"><div class="detail-label" style="margin-bottom:5px;">Cita favorita ✦</div><div style="font-style:italic;color:var(--gold-light);line-height:1.6;">"${b.cita}"</div></div>`:''}
+    ${b.rating_personajes||b.rating_mundo||b.rating_trama||b.rating_prosa?`<div style="margin-top:14px;"><div class="detail-label" style="margin-bottom:8px;">Evaluación detallada</div><div class="rating-bars">${ratingBars}</div></div>`:''}
+  `;
+  document.getElementById('detail-edit-btn').onclick=()=>editBook(id);
+  document.getElementById('detail-delete-btn').onclick=()=>deleteBook(id);
+  document.getElementById('detailModal').classList.add('open');
+}
+
+function closeDetailModal(){document.getElementById('detailModal').classList.remove('open');}
+
+async function deleteBook(id){
+  if(!confirm('¿Eliminar este libro?'))return;
+  books=books.filter(b=>b.id!==id);
+  closeDetailModal();renderLibrary();renderHome();
+  showToast('🗑️ Eliminando...');
+  await saveBooks();
+  showToast('🗑️ Libro eliminado');
+}
+
+// ── TBR ───────────────────────────────────────────────────────────────────────
+function openTBRModal(){document.getElementById('tbrModal').classList.add('open');}
+function closeTBRModal(){document.getElementById('tbrModal').classList.remove('open');['titulo','autor','genero','razon'].forEach(f=>document.getElementById('tbr-'+f).value='');document.getElementById('tbr-prioridad').value='media';}
+
+async function saveTBR(){
+  const titulo=document.getElementById('tbr-titulo').value.trim();
+  if(!titulo){showToast('⚠️ El título es obligatorio');return;}
+  tbrItems.unshift({id:Date.now(),titulo,autor:document.getElementById('tbr-autor').value.trim(),genero:document.getElementById('tbr-genero').value.trim(),prioridad:document.getElementById('tbr-prioridad').value,razon:document.getElementById('tbr-razon').value.trim()});
+  closeTBRModal();renderTBR();renderHome();
+  showToast('📋 Guardando en Google Sheets...');
+  await saveTBRSheet();
+  showToast('📋 Agregado al TBR');
+}
+
+function renderTBR(){
+  const q=document.getElementById('tbrSearch').value.toLowerCase();
+  const prio=document.getElementById('tbrPriority').value;
+  let list=[...tbrItems];
+  if(q) list=list.filter(b=>b.titulo.toLowerCase().includes(q)||(b.autor||'').toLowerCase().includes(q));
+  if(prio) list=list.filter(b=>b.prioridad===prio);
+  list.sort((a,b)=>({alta:0,media:1,baja:2}[a.prioridad])-({alta:0,media:1,baja:2}[b.prioridad]));
+  const prioLabel={alta:'🔥 Alta',media:'⭐ Media',baja:'🌙 Baja'};
+  const prioClass={alta:'priority-alta',media:'priority-media',baja:'priority-baja'};
+  const container=document.getElementById('tbr-list');
+  if(!list.length){container.innerHTML='<div class="empty-state"><div class="icon">📋</div><h3>Tu TBR está vacío</h3><p>Agrega libros que quieras leer</p></div>';return;}
+  container.innerHTML=list.map(t=>`
+    <div class="tbr-item">
+      <div class="tbr-priority ${prioClass[t.prioridad]}">${t.prioridad[0].toUpperCase()}</div>
+      <div class="tbr-info"><div class="tbr-title">${t.titulo}</div>${t.autor?`<div class="tbr-author">por ${t.autor}</div>`:''}
+      <div class="tbr-meta">${t.genero?'📚 '+t.genero:''} ${t.razon?'· "'+t.razon.slice(0,60)+(t.razon.length>60?'...':'') +'"':''}</div></div>
+      <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-end;flex-shrink:0;">
+        <span style="font-size:11px;color:var(--text-dim);">${prioLabel[t.prioridad]}</span>
+        <button class="btn btn-primary btn-sm" onclick="moveTBRToLibrary(${t.id})">📖 Empezar</button>
+        <button class="btn btn-ghost btn-sm" onclick="deleteTBR(${t.id})">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+async function moveTBRToLibrary(id){
+  const item=tbrItems.find(t=>t.id===id);if(!item)return;
+  tbrItems=tbrItems.filter(t=>t.id!==id);
+  books.unshift({id:Date.now(),titulo:item.titulo,autor:item.autor||'',genero:item.genero||'',estado:'leyendo',saga:'',paginas:'',tropes:'',editorial:'',resena:'',cita:'',personaje_fav:'',recomienda:'',fecha_inicio:new Date().toISOString().split('T')[0],rating_general:0,rating_personajes:0,rating_mundo:0,rating_trama:0,rating_prosa:0});
+  renderTBR();renderHome();
+  await Promise.all([saveTBRSheet(),saveBooks()]);
+  showToast('📖 ¡Movido a Biblioteca como "Leyendo"!');
+}
+
+async function deleteTBR(id){
+  tbrItems=tbrItems.filter(t=>t.id!==id);renderTBR();document.getElementById('s-tbr').textContent=tbrItems.length;
+  await saveTBRSheet();showToast('🗑️ Eliminado del TBR');
+}
+
+// ── MOODBOARD ─────────────────────────────────────────────────────────────────
+function openMoodModal(id){
+  selectedPalette=[];
+  document.querySelectorAll('#mood-palette-picker .color-swatch').forEach(s=>s.classList.remove('selected'));
+  if(id){
+    editingMoodId=id;const m=moodboards.find(m=>m.id===id);
+    document.getElementById('moodModalTitle').textContent='✏️ Editar Moodboard';
+    document.getElementById('mood-libro').value=m.libro;document.getElementById('mood-autor').value=m.autor||'';
+    document.getElementById('mood-vibes').value=m.vibes||'';document.getElementById('mood-descripcion').value=m.descripcion||'';
+    document.getElementById('mood-emojis').value=m.emojis||'';document.getElementById('mood-urls').value=(m.urls||[]).join('\n');
+    selectedPalette=[...(m.palette||[])];
+    selectedPalette.forEach(c=>{const sw=document.querySelector(`#mood-palette-picker .color-swatch[data-color="${c}"]`);if(sw)sw.classList.add('selected');});
+  } else {
+    editingMoodId=null;document.getElementById('moodModalTitle').textContent='🎨 Nuevo Moodboard';
+    ['libro','autor','vibes','descripcion','emojis','urls'].forEach(f=>document.getElementById('mood-'+f).value='');
+  }
+  document.getElementById('moodModal').classList.add('open');
+}
+
+function closeMoodModal(){document.getElementById('moodModal').classList.remove('open');}
+function togglePaletteColor(el){const c=el.dataset.color;if(el.classList.contains('selected')){el.classList.remove('selected');selectedPalette=selectedPalette.filter(x=>x!==c);}else{el.classList.add('selected');selectedPalette.push(c);}}
+function addCustomColor(c){if(!selectedPalette.includes(c))selectedPalette.push(c);}
+
+async function saveMood(){
+  const libro=document.getElementById('mood-libro').value.trim();
+  if(!libro){showToast('⚠️ El título del libro es obligatorio');return;}
+  const urlsRaw=document.getElementById('mood-urls').value.trim();
+  const urls=urlsRaw?urlsRaw.split('\n').map(u=>u.trim()).filter(u=>u.startsWith('http')):[];
+  const mood={id:editingMoodId!==null?editingMoodId:Date.now(),libro,autor:document.getElementById('mood-autor').value.trim(),vibes:document.getElementById('mood-vibes').value.trim(),descripcion:document.getElementById('mood-descripcion').value.trim(),emojis:document.getElementById('mood-emojis').value.trim(),urls,palette:[...selectedPalette]};
+  if(editingMoodId!==null){moodboards=moodboards.map(m=>m.id===editingMoodId?mood:m);}
+  else{moodboards.unshift(mood);}
+  closeMoodModal();renderMoodboards();
+  await saveMoodsSheet();showToast('🎨 Moodboard guardado');
+}
+
+function renderMoodboards(){
+  const q=document.getElementById('moodSearch').value.toLowerCase();
+  let list=[...moodboards];
+  if(q) list=list.filter(m=>m.libro.toLowerCase().includes(q)||(m.vibes||'').toLowerCase().includes(q));
+  const grid=document.getElementById('moodboards-grid');
+  if(!list.length){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="icon">🎨</div><h3>Sin moodboards</h3><p>Crea el universo visual de tus libros</p></div>';return;}
+  grid.innerHTML=list.map(m=>{
+    const vibesTags=m.vibes?m.vibes.split(',').slice(0,5).map(v=>`<span class="tag">${v.trim()}</span>`).join(''):'';
+    const paletteDots=(m.palette||[]).slice(0,8).map(c=>`<div class="palette-dot" style="background:${c}"></div>`).join('');
+    const slots=Array.from({length:6},(_,i)=>{
+      if(m.urls&&m.urls[i])return`<div class="moodboard-img-slot"><img src="${m.urls[i]}" onerror="this.parentElement.innerHTML='🖼️'" alt="mood"></div>`;
+      return`<div class="moodboard-img-slot">｛｝</div>`;
+    }).join('');
+    return`<div class="moodboard-card" onclick="openMoodDetail(${m.id})">
+      <div class="moodboard-header"><div class="moodboard-book">${m.emojis?m.emojis+' ':''} ${m.libro}</div>${m.autor?`<div class="moodboard-author">por ${m.autor}</div>`:''}</div>
+      <div class="moodboard-images">${slots}</div>
+      ${paletteDots?`<div class="moodboard-palette">${paletteDots}</div>`:''}
+      ${m.descripcion?`<div class="moodboard-vibe"><div class="moodboard-vibe-text">"${m.descripcion.slice(0,120)}${m.descripcion.length>120?'...':''}"</div></div>`:''}
+      ${vibesTags?`<div class="moodboard-tags-row">${vibesTags}</div>`:''}
+      <div class="moodboard-actions"><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openMoodModal(${m.id})">✏️ Editar</button><button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deleteMood(${m.id})">✕</button></div>
+    </div>`;
+  }).join('');
+}
+
+function openMoodDetail(id){
+  const m=moodboards.find(m=>m.id===id);if(!m)return;
+  const paletteDots=(m.palette||[]).map(c=>`<div style="width:28px;height:28px;border-radius:50%;background:${c};border:2px solid rgba(255,255,255,0.1);"></div>`).join('');
+  const imgs=m.urls&&m.urls.length?`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:16px 0;">${m.urls.map(u=>`<div style="aspect-ratio:1;border-radius:8px;overflow:hidden;background:var(--bg-panel);"><img src="${u}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.textContent='🖼️'"></div>`).join('')}</div>`:'';
+  document.getElementById('mood-detail-content').innerHTML=`
+    <h2>🎨 ${m.libro}</h2>
+    ${m.autor?`<p style="color:var(--text-dim);font-style:italic;margin-bottom:16px;">por ${m.autor}</p>`:''}
+    ${m.emojis?`<p style="font-size:28px;margin-bottom:12px;">${m.emojis}</p>`:''}
+    ${imgs}
+    ${paletteDots?`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">${paletteDots}</div>`:''}
+    ${m.descripcion?`<div style="padding:14px;background:var(--bg-panel);border-radius:8px;border-left:3px solid var(--violet-light);margin-bottom:12px;font-style:italic;line-height:1.7;">"${m.descripcion}"</div>`:''}
+    ${m.vibes?`<div style="display:flex;flex-wrap:wrap;gap:6px;">${m.vibes.split(',').map(v=>`<span class="tag">${v.trim()}</span>`).join('')}</div>`:''}
+  `;
+  document.getElementById('mood-edit-btn').onclick=()=>{closeMoodDetail();openMoodModal(id);};
+  document.getElementById('mood-delete-btn').onclick=()=>deleteMood(id);
+  document.getElementById('moodDetailModal').classList.add('open');
+}
+
+function closeMoodDetail(){document.getElementById('moodDetailModal').classList.remove('open');}
+
+async function deleteMood(id){
+  if(!confirm('¿Eliminar este moodboard?'))return;
+  moodboards=moodboards.filter(m=>m.id!==id);closeMoodDetail();renderMoodboards();
+  await saveMoodsSheet();showToast('🗑️ Moodboard eliminado');
+}
+
+// ── PERSONAJES ────────────────────────────────────────────────────────────────
+function openCharModal(id){
+  if(id){
+    editingCharId=id;const c=characters.find(c=>c.id===id);
+    document.getElementById('charModalTitle').textContent='✏️ Editar Personaje';
+    document.getElementById('char-nombre').value=c.nombre;document.getElementById('char-libro').value=c.libro;
+    document.getElementById('char-autor').value=c.autor||'';document.getElementById('char-emoji').value=c.emoji||'';
+    document.getElementById('char-razon').value=c.razon||'';document.getElementById('char-momento').value=c.momento||'';
+    document.getElementById('char-rasgos').value=c.rasgos||'';document.getElementById('char-cita').value=c.cita||'';
+    selectCharType(c.tipo||'favorito');
+  } else {
+    editingCharId=null;document.getElementById('charModalTitle').textContent='🎭 Agregar Personaje';
+    ['nombre','libro','autor','emoji','razon','momento','rasgos','cita'].forEach(f=>document.getElementById('char-'+f).value='');
+    selectCharType('favorito');
+  }
+  document.getElementById('charModal').classList.add('open');
+}
+
+function closeCharModal(){document.getElementById('charModal').classList.remove('open');}
+
+function selectCharType(type){
+  document.getElementById('char-tipo').value=type;
+  document.querySelectorAll('.char-type-btn').forEach(b=>{b.classList.toggle('btn-primary',b.dataset.type===type);b.classList.toggle('btn-ghost',b.dataset.type!==type);});
+}
+
+async function saveChar(){
+  const nombre=document.getElementById('char-nombre').value.trim();
+  const libro=document.getElementById('char-libro').value.trim();
+  if(!nombre||!libro){showToast('⚠️ Nombre y libro son obligatorios');return;}
+  const char={id:editingCharId!==null?editingCharId:Date.now(),nombre,libro,autor:document.getElementById('char-autor').value.trim(),tipo:document.getElementById('char-tipo').value,emoji:document.getElementById('char-emoji').value.trim()||'🎭',razon:document.getElementById('char-razon').value.trim(),momento:document.getElementById('char-momento').value.trim(),rasgos:document.getElementById('char-rasgos').value.trim(),cita:document.getElementById('char-cita').value.trim()};
+  if(editingCharId!==null){characters=characters.map(c=>c.id===editingCharId?char:c);}
+  else{characters.unshift(char);}
+  closeCharModal();renderChars();document.getElementById('s-chars').textContent=characters.length;
+  await saveCharsSheet();showToast('🎭 Personaje guardado');
+}
+
+function setCharTab(tab){
+  currentCharTab=tab;
+  document.querySelectorAll('.char-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.char-tab').forEach(t=>{if(t.getAttribute('onclick')?.includes("'"+tab+"'"))t.classList.add('active');});
+  renderChars();
+}
+
+function renderChars(){
+  const q=document.getElementById('charSearch').value.toLowerCase();
+  let list=[...characters];
+  if(q) list=list.filter(c=>c.nombre.toLowerCase().includes(q)||c.libro.toLowerCase().includes(q));
+  if(currentCharTab!=='todos') list=list.filter(c=>c.tipo===currentCharTab);
+  const grid=document.getElementById('chars-grid');
+  if(!list.length){const emptyMsg={todos:'Agrega tu primer personaje',favorito:'No tienes favoritos aún',amado:'No hay personajes amados aún',odiado:'No hay personajes despreciados aún'}[currentCharTab];grid.innerHTML=`<div class="empty-state" style="grid-column:1/-1"><div class="icon">🎭</div><h3>Sin personajes aquí</h3><p>${emptyMsg}</p></div>`;return;}
+  const badgeMap={favorito:'<span class="char-type-badge badge-favorito">🥰 Favorito</span>',amado:'<span class="char-type-badge badge-amado">💗 Lo amo</span>',odiado:'<span class="char-type-badge badge-odiado">🖤 Lo desprecio</span>'};
+  grid.innerHTML=list.map(c=>{
+    const rasgos=c.rasgos?c.rasgos.split(',').slice(0,4).map(r=>`<span class="tag">${r.trim()}</span>`).join(''):'';
+    return`<div class="char-card ${c.tipo}">
+      <div class="char-top"><div class="char-avatar ${c.tipo}">${c.emoji||'🎭'}</div><div><div class="char-name">${c.nombre}</div><div class="char-book">📖 ${c.libro}${c.autor?' · '+c.autor:''}</div>${badgeMap[c.tipo]||''}</div></div>
+      <div class="char-body">${c.razon?`<div class="char-razon">${c.razon.slice(0,160)}${c.razon.length>160?'...':''}</div>`:''} ${c.cita?`<div style="margin:8px 0;font-size:13px;color:var(--gold-light);font-style:italic;padding:8px;background:rgba(212,175,106,0.08);border-radius:6px;">"${c.cita.slice(0,100)}${c.cita.length>100?'...':''}"</div>`:''} ${rasgos?`<div class="char-traits">${rasgos}</div>`:''}</div>
+      <div class="char-actions"><button class="btn btn-ghost btn-sm" onclick="openCharModal(${c.id})">✏️ Editar</button><button class="btn btn-danger btn-sm" onclick="deleteChar(${c.id})">✕</button></div>
+    </div>`;
+  }).join('');
+}
+
+async function deleteChar(id){
+  if(!confirm('¿Eliminar este personaje?'))return;
+  characters=characters.filter(c=>c.id!==id);renderChars();document.getElementById('s-chars').textContent=characters.length;
+  await saveCharsSheet();showToast('🗑️ Personaje eliminado');
+}
+
+// ── STATS ─────────────────────────────────────────────────────────────────────
+function renderStats(){
+  const leidos=books.filter(b=>b.estado==='leido');
+  const withR=leidos.filter(b=>b.rating_general>0);
+  const avg=withR.length?(withR.reduce((s,b)=>s+b.rating_general,0)/withR.length).toFixed(1):'—';
+  document.getElementById('stats-overview').innerHTML=`
+    <div class="big-stat"><div class="icon">📚</div><span class="number">${books.length}</span><div class="label">Libros en total</div></div>
+    <div class="big-stat"><div class="icon">✅</div><span class="number">${leidos.length}</span><div class="label">Leídos</div></div>
+    <div class="big-stat"><div class="icon">⭐</div><span class="number">${avg}</span><div class="label">Rating promedio</div></div>`;
+  const genres={};books.forEach(b=>{if(b.genero)genres[b.genero]=(genres[b.genero]||0)+1;});
+  const maxG=Math.max(...Object.values(genres),1);
+  document.getElementById('genre-chart').innerHTML=Object.entries(genres).sort((a,b)=>b[1]-a[1]).map(([g,n])=>`<div class="genre-row"><div class="genre-name">${g}</div><div class="genre-bar-track"><div class="genre-bar-fill" style="width:${n/maxG*100}%"></div></div><div class="genre-count">${n}</div></div>`).join('')||'<p style="color:var(--text-dim);font-style:italic;">Agrega géneros a tus libros</p>';
+  const dist={5:0,4:0,3:0,2:0,1:0};withR.forEach(b=>dist[b.rating_general]=(dist[b.rating_general]||0)+1);
+  const maxD=Math.max(...Object.values(dist),1);
+  document.getElementById('rating-dist').innerHTML=[5,4,3,2,1].map(n=>`<div class="rating-dist-row"><div class="rating-stars-dist">${'★'.repeat(n)}${'☆'.repeat(5-n)}</div><div class="rating-dist-bar"><div class="rating-dist-fill" style="width:${dist[n]/maxD*100}%"></div></div><div class="rating-dist-count">${dist[n]}</div></div>`).join('');
+  const top=[...withR].sort((a,b)=>b.rating_general-a.rating_general).slice(0,3);
+  document.getElementById('stats-favorites').innerHTML=top.length?`<div style="display:flex;gap:14px;flex-wrap:wrap;">${top.map((b,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg-panel);border-radius:8px;flex:1;min-width:160px;"><span style="font-size:20px;">${['🥇','🥈','🥉'][i]}</span><div><div style="font-weight:600;color:var(--lavender-pale);">${b.titulo}</div><div style="font-size:12px;color:var(--text-dim);">${b.autor} · ${'★'.repeat(b.rating_general)}</div></div></div>`).join('')}</div>`:'<p style="color:var(--text-dim);font-style:italic;">Califica tus libros para ver tus favoritos</p>';
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+
+// ── CLOSE ON OVERLAY ──────────────────────────────────────────────────────────
+['bookModal','detailModal','tbrModal','moodModal','moodDetailModal','charModal'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
+});
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+loadAll();
+</script>
+</body>
+</html>
