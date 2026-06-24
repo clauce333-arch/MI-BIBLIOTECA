@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" translate="no">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="google" content="notranslate">
 <title>Mi Biblioteca Personal ✨</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
@@ -197,12 +198,81 @@
   ::-webkit-scrollbar{width:5px;}
   ::-webkit-scrollbar-track{background:var(--bg-deep);}
   ::-webkit-scrollbar-thumb{background:var(--violet-dark);border-radius:3px;}
-  @media(max-width:768px){
-    .sidebar{width:56px;}
+
+  /* ═══════════════════════════════════════════════════
+     NAVEGACIÓN RESPONSIVA — 3 dispositivos
+     ═══════════════════════════════════════════════════ */
+
+  /* ── ESCRITORIO (>1024px): sidebar completo ── */
+  @media(min-width:1025px){
+    .sidebar{width:220px;}
+    .main{margin-left:220px;padding:28px 32px;}
+    .bottom-nav{display:none;}
+    .stats-row{grid-template-columns:repeat(4,1fr);}
+    .form-grid{grid-template-columns:1fr 1fr;}
+  }
+
+  /* ── TABLET (481px–1024px): sidebar solo iconos ── */
+  @media(min-width:481px) and (max-width:1024px){
+    .sidebar{width:64px;}
     .sidebar-logo h1,.nav-btn span:last-child,.nav-section-title,.sidebar-stats,.sync-status span:last-child{display:none;}
-    .main{margin-left:56px;padding:14px;}
+    .sidebar-logo{padding:14px 8px;}
+    .sidebar-logo .icon-logo{font-size:26px;margin-bottom:0;}
+    .sync-status{justify-content:center;padding:8px 4px;}
+    .nav-btn{justify-content:center;padding:12px 8px;border-left-width:2px;}
+    .nav-btn .nav-icon{font-size:22px;min-width:unset;}
+    .main{margin-left:64px;padding:20px 18px;}
+    .bottom-nav{display:none;}
     .stats-row{grid-template-columns:repeat(2,1fr);}
+    .form-grid{grid-template-columns:1fr 1fr;}
+  }
+
+  /* ── MÓVIL (≤480px): barra de navegación inferior ── */
+  @media(max-width:480px){
+    .sidebar{display:none;}
+    .main{margin-left:0;padding:14px 12px 84px;}
+    .bottom-nav{
+      display:flex;
+      position:fixed;bottom:0;left:0;right:0;
+      background:linear-gradient(0deg,#0d0a1a 0%,#130e25 100%);
+      border-top:1px solid rgba(176,127,212,0.35);
+      z-index:200;
+      justify-content:space-around;
+      align-items:flex-end;
+      padding:6px 0;
+      padding-bottom:max(8px,env(safe-area-inset-bottom));
+      box-shadow:0 -4px 20px rgba(0,0,0,0.4);
+    }
+    .bottom-nav-btn{
+      display:flex;flex-direction:column;align-items:center;gap:2px;
+      background:none;border:none;color:var(--text-dim);cursor:pointer;
+      padding:6px 8px 2px;border-radius:10px;transition:all 0.2s;
+      font-family:'Crimson Text',serif;min-width:48px;
+    }
+    .bottom-nav-btn .bnav-icon{font-size:22px;line-height:1;}
+    .bottom-nav-btn .bnav-label{font-size:9px;letter-spacing:0.3px;text-transform:uppercase;}
+    .bottom-nav-btn.active{color:var(--gold-light);}
+    .bottom-nav-btn.active .bnav-icon{
+      filter:drop-shadow(0 0 6px rgba(240,208,144,0.6));
+      transform:translateY(-2px);
+    }
+    .stats-row{grid-template-columns:repeat(2,1fr);gap:10px;}
     .form-grid{grid-template-columns:1fr;}
+    .books-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;}
+    .page-title{font-size:16px;}
+    .page-header{flex-direction:column;align-items:flex-start;gap:8px;}
+    .page-subtitle{font-size:12px;}
+    .modal{padding:18px;width:95%;max-height:92vh;}
+    .modal h2{font-size:14px;margin-bottom:14px;}
+    .moodboards-grid{grid-template-columns:1fr;}
+    .chars-grid{grid-template-columns:1fr;}
+    .stats-overview{grid-template-columns:repeat(3,1fr);gap:10px;}
+    .big-stat .number{font-size:24px;}
+    .big-stat .icon{font-size:22px;margin-bottom:4px;}
+    .welcome-banner{padding:18px 16px;}
+    .welcome-banner h2{font-size:16px;}
+    .welcome-banner::before{display:none;}
+    .toast{bottom:80px;}
   }
 </style>
 </head>
@@ -234,6 +304,28 @@
     <div class="stat-mini"><span>🎭 Personajes</span><span id="s-chars">0</span></div>
   </div>
 </aside>
+
+<!-- BARRA DE NAVEGACIÓN INFERIOR (solo móvil) -->
+<nav class="bottom-nav">
+  <button class="bottom-nav-btn active" onclick="showPage('home');setBottomNav(this)">
+    <span class="bnav-icon">🏠</span><span class="bnav-label">Inicio</span>
+  </button>
+  <button class="bottom-nav-btn" onclick="showPage('biblioteca');setBottomNav(this)">
+    <span class="bnav-icon">📚</span><span class="bnav-label">Libros</span>
+  </button>
+  <button class="bottom-nav-btn" onclick="showPage('tbr');setBottomNav(this)">
+    <span class="bnav-icon">📋</span><span class="bnav-label">TBR</span>
+  </button>
+  <button class="bottom-nav-btn" onclick="showPage('moodboard');setBottomNav(this)">
+    <span class="bnav-icon">🎨</span><span class="bnav-label">Mood</span>
+  </button>
+  <button class="bottom-nav-btn" onclick="showPage('personajes');setBottomNav(this)">
+    <span class="bnav-icon">🎭</span><span class="bnav-label">Persos</span>
+  </button>
+  <button class="bottom-nav-btn" onclick="showPage('estadisticas');setBottomNav(this)">
+    <span class="bnav-icon">📊</span><span class="bnav-label">Stats</span>
+  </button>
+</nav>
 
 <main class="main">
   <!-- HOME -->
@@ -316,7 +408,7 @@
     </div>
     <div class="chars-tabs">
       <button class="char-tab active" onclick="setCharTab('todos')">Todos</button>
-      <button class="char-tab" onclick="setCharTab('favorito')">💛 Favoritos</button>
+      <button class="char-tab" onclick="setCharTab('favorito')">🥰 Favoritos</button>
       <button class="char-tab" onclick="setCharTab('amado')">💗 Amados</button>
       <button class="char-tab" onclick="setCharTab('odiado')">🖤 Despreciados</button>
     </div>
@@ -357,13 +449,14 @@
       <div class="form-group"><label class="form-label">Estado</label>
         <select class="form-select" id="f-estado">
           <option value="pendiente">⏳ Pendiente</option><option value="leyendo">📖 Leyendo</option>
-          <option value="leido">✅ Leído</option><option value="abandonado">❌ Abandonado</option>
+          <option value="leido">✅ Leído</option><option value="abandonado">✗ Abandonado</option>
         </select>
       </div>
       <div class="form-group"><label class="form-label">Fecha inicio</label><input type="date" class="form-input" id="f-inicio"></div>
       <div class="form-group"><label class="form-label">Fecha término</label><input type="date" class="form-input" id="f-termino"></div>
       <div class="form-group"><label class="form-label">Tropes / Etiquetas</label><input type="text" class="form-input" id="f-tropes" placeholder="magia, misterio, romance..."></div>
       <div class="form-group"><label class="form-label">Editorial</label><input type="text" class="form-input" id="f-editorial" placeholder="Editorial (opcional)"></div>
+      <div class="form-group form-full"><label class="form-label">🖼️ URL de portada (opcional)</label><input type="url" class="form-input" id="f-portada" placeholder="https://... pega el link de la imagen de la portada"></div>
       <div class="form-group form-full"><label class="form-label">Rating general</label>
         <div class="star-picker" id="star-general"><span onclick="setRating('general',1)">★</span><span onclick="setRating('general',2)">★</span><span onclick="setRating('general',3)">★</span><span onclick="setRating('general',4)">★</span><span onclick="setRating('general',5)">★</span></div>
       </div>
@@ -446,7 +539,7 @@
       </div>
       <div class="form-group"><label class="form-label">Palabras clave / Vibes</label><input type="text" class="form-input" id="mood-vibes" placeholder="oscuro, romántico, épico, misterioso..."></div>
       <div class="form-group"><label class="form-label">Atmósfera del libro</label><textarea class="form-textarea" id="mood-descripcion" placeholder="¿Qué sensación te dejó? ¿A qué huele, qué colores tiene?"></textarea></div>
-      <div class="form-group"><label class="form-label">Emojis representativos</label><input type="text" class="form-input" id="mood-emojis" placeholder="🌙 🗡️ 🌿 🕯️ ❄️ ..."></div>
+      <div class="form-group"><label class="form-label">Emojis representativos</label><input type="text" class="form-input" id="mood-emojis" placeholder="🌙 🗡️✏️ 🌿 🕯️✏️ ❄️✏️ ..."></div>
       <div class="form-group"><label class="form-label">URLs de imágenes (una por línea)</label><textarea class="form-textarea" id="mood-urls" placeholder="https://... (pega URLs de imágenes de Pinterest, Google, etc.)" style="min-height:70px;"></textarea></div>
     </div>
     <div class="modal-actions">
@@ -479,13 +572,13 @@
       <div class="form-group">
         <label class="form-label">¿Cómo te hace sentir?</label>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <button type="button" class="btn btn-ghost btn-sm char-type-btn" data-type="favorito" onclick="selectCharType('favorito')">💛 Favorito</button>
+          <button type="button" class="btn btn-ghost btn-sm char-type-btn" data-type="favorito" onclick="selectCharType('favorito')">🥰 Favorito</button>
           <button type="button" class="btn btn-ghost btn-sm char-type-btn" data-type="amado" onclick="selectCharType('amado')">💗 Lo amo</button>
           <button type="button" class="btn btn-ghost btn-sm char-type-btn" data-type="odiado" onclick="selectCharType('odiado')">🖤 Lo desprecio</button>
         </div>
         <input type="hidden" id="char-tipo" value="favorito">
       </div>
-      <div class="form-group"><label class="form-label">Emoji que lo representa</label><input type="text" class="form-input" id="char-emoji" placeholder="🗡️ 🌙 🔮 🐉 ..." maxlength="4"></div>
+      <div class="form-group"><label class="form-label">Emoji que lo representa</label><input type="text" class="form-input" id="char-emoji" placeholder="🗡️✏️ 🌙 🔮 🐉 ..." maxlength="4"></div>
       <div class="form-group"><label class="form-label">¿Por qué lo amas / odias? ✦</label><textarea class="form-textarea" id="char-razon" placeholder="Cuéntame todo. ¿Qué tiene este personaje que te marcó?" style="min-height:100px;"></textarea></div>
       <div class="form-group"><label class="form-label">Escena o momento favorito</label><textarea class="form-textarea" id="char-momento" placeholder="La escena que jamás olvidarás..."></textarea></div>
       <div class="form-group"><label class="form-label">Rasgos / adjetivos que lo definen</label><input type="text" class="form-input" id="char-rasgos" placeholder="valiente, traicionero, leal, complejo..."></div>
@@ -501,9 +594,9 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ── CONFIG ────────────────────────────────────────────────────────────
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxSqXz4deBcONSQDoC7wH2yP3WeYVf3phFgALdR5d5VE72JH9DAb1ccoOJ5OzcF9TxuzA/exec';
-const EMOJIS = ['📖','🌙','✨','🔮','🌿','🏰','⚔️','🌹','🐉','💫','🗡️','🕯️'];
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxz9yQk_WeBG4qoecVhDGXD2baLWY9uDZMEsrs-CKQreUZhIYfJzS5cY9wRp91x566Agw/exec';
+const EMOJIS = ['📚','🌙','✨','🔮','🌿','🏰','🕯️','🌹','🐉','💗','🗡️','🌺'];
 
 let books = [];
 let tbrItems = [];
@@ -517,7 +610,13 @@ const ratings = {general:0,personajes:0,mundo:0,trama:0,prosa:0};
 let selectedPalette = [];
 let isSyncing = false;
 
-// ── SYNC ──────────────────────────────────────────────────────────────
+// ── BOTTOM NAV ───────────────────────────────────────────────────────────────
+function setBottomNav(btn) {
+  document.querySelectorAll('.bottom-nav-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ── SYNC ─────────────────────────────────────────────────────────────────────
 function setSyncStatus(state, text) {
   const dot = document.getElementById('syncDot');
   const txt = document.getElementById('syncText');
@@ -556,12 +655,14 @@ function rowToBook(r) {
     personaje_fav:r[13]||'', recomienda:r[14]||'',
     rating_general:Number(r[15])||0, rating_personajes:Number(r[16])||0,
     rating_mundo:Number(r[17])||0, rating_trama:Number(r[18])||0, rating_prosa:Number(r[19])||0,
+    portada:r[20]||'',
   };
 }
 function bookToRow(b) {
   return [b.id,b.titulo,b.autor,b.genero,b.saga,b.paginas,b.estado,b.fecha_inicio,b.fecha_termino,
     b.tropes,b.editorial,b.resena,b.cita,b.personaje_fav,b.recomienda,
-    b.rating_general,b.rating_personajes,b.rating_mundo,b.rating_trama,b.rating_prosa];
+    b.rating_general,b.rating_personajes,b.rating_mundo,b.rating_trama,b.rating_prosa,
+    b.portada||''];
 }
 
 function rowToTBR(r) {
@@ -626,7 +727,7 @@ async function saveCharsSheet() {
   catch(e) { setSyncStatus('error','Error al guardar'); }
 }
 
-// ── NAVIGATION ────────────────────────────────────────────────────────
+// ── NAVIGATION ───────────────────────────────────────────────────────────────
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
@@ -636,7 +737,7 @@ function showPage(name) {
   if(actions[name]) actions[name]();
 }
 
-// ── HOME ──────────────────────────────────────────────────────────────
+// ── HOME ─────────────────────────────────────────────────────────────────────
 function renderHome() {
   const leidos=books.filter(b=>b.estado==='leido');
   const leyendo=books.filter(b=>b.estado==='leyendo');
@@ -655,7 +756,7 @@ function renderHome() {
   document.getElementById('home-recent').innerHTML=recent.length?recent.map(b=>bookCardHTML(b)).join(''):'<div class="empty-state"><div class="icon">🌙</div><h3>Tu biblioteca está vacía</h3><p>Agrega tu primer libro para comenzar</p></div>';
 }
 
-// ── LIBRARY ───────────────────────────────────────────────────────────
+// ── LIBRARY ───────────────────────────────────────────────────────────────────
 function renderLibrary() {
   const q=document.getElementById('searchInput').value.toLowerCase();
   const status=document.getElementById('filterStatus').value;
@@ -685,10 +786,13 @@ function populateGenreFilter() {
 function bookCardHTML(b) {
   const stars=starsHTML(b.rating_general||0);
   const tags=b.tropes?b.tropes.split(',').slice(0,3).map(t=>`<span class="tag">${t.trim()}</span>`).join(''):'';
-  const statusLabel={leido:'✅ Leído',leyendo:'📖 Leyendo',pendiente:'⏳ Pendiente',abandonado:'❌ Abandonado'}[b.estado];
+  const statusLabel={leido:'✅ Leído',leyendo:'📖 Leyendo',pendiente:'⏳ Pendiente',abandonado:'✗ Abandonado'}[b.estado];
   const cover=EMOJIS[b.id%EMOJIS.length];
+  const coverHTML=b.portada
+    ?`<img src="${b.portada}" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;" onerror="this.style.display='none'">`
+    :`<span style="font-size:55px;">${cover}</span>`;
   return `<div class="book-card" onclick="openDetail(${b.id})">
-    <div class="book-cover" style="background:linear-gradient(135deg,#1a1330,#3d1f7a);">${cover}<span class="book-status-badge status-${b.estado}">${statusLabel}</span></div>
+    <div class="book-cover" style="background:linear-gradient(135deg,#1a1330,#3d1f7a);position:relative;overflow:hidden;">${coverHTML}<span class="book-status-badge status-${b.estado}">${statusLabel}</span></div>
     <div class="book-info"><div class="book-title">${b.titulo}</div><div class="book-author">${b.autor}</div><div class="star-rating">${stars}</div><div class="book-tags">${tags}</div></div>
     <div class="book-card-actions"><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();editBook(${b.id})">✏️ Editar</button></div>
   </div>`;
@@ -696,7 +800,7 @@ function bookCardHTML(b) {
 
 function starsHTML(n){return Array.from({length:5},(_,i)=>`<span class="${i<n?'':'empty'}">★</span>`).join('');}
 
-// ── ADD/EDIT BOOK ─────────────────────────────────────────────────────
+// ── ADD/EDIT BOOK ─────────────────────────────────────────────────────────────
 function openAddModal(){editingBookId=null;document.getElementById('modalTitle').textContent='✦ Agregar Libro';clearBookForm();document.getElementById('bookModal').classList.add('open');}
 
 function editBook(id){
@@ -709,13 +813,13 @@ function editBook(id){
   document.getElementById('f-inicio').value=b.fecha_inicio||'';document.getElementById('f-termino').value=b.fecha_termino||'';
   document.getElementById('f-tropes').value=b.tropes||'';document.getElementById('f-editorial').value=b.editorial||'';
   document.getElementById('f-resena').value=b.resena||'';document.getElementById('f-cita').value=b.cita||'';
-  document.getElementById('f-personaje').value=b.personaje_fav||'';document.getElementById('f-recomienda').value=b.recomienda||'';
+  document.getElementById('f-personaje').value=b.personaje_fav||'';document.getElementById('f-recomienda').value=b.recomienda||'';document.getElementById('f-portada').value=b.portada||'';
   ['general','personajes','mundo','trama','prosa'].forEach(f=>{ratings[f]=b['rating_'+f]||0;updateStars(f);});
   document.getElementById('bookModal').classList.add('open');
 }
 
 function clearBookForm(){
-  ['titulo','autor','genero','saga','editorial','tropes','resena','cita','personaje','recomienda'].forEach(f=>document.getElementById('f-'+f).value='');
+  ['titulo','autor','genero','saga','editorial','tropes','resena','cita','personaje','recomienda','portada'].forEach(f=>document.getElementById('f-'+f).value='');
   document.getElementById('f-paginas').value='';document.getElementById('f-inicio').value='';document.getElementById('f-termino').value='';
   document.getElementById('f-estado').value='pendiente';
   ['general','personajes','mundo','trama','prosa'].forEach(f=>{ratings[f]=0;updateStars(f);});
@@ -734,7 +838,7 @@ async function saveBook(){
     fecha_inicio:document.getElementById('f-inicio').value,fecha_termino:document.getElementById('f-termino').value,
     tropes:document.getElementById('f-tropes').value.trim(),editorial:document.getElementById('f-editorial').value.trim(),
     resena:document.getElementById('f-resena').value.trim(),cita:document.getElementById('f-cita').value.trim(),
-    personaje_fav:document.getElementById('f-personaje').value.trim(),recomienda:document.getElementById('f-recomienda').value.trim(),
+    personaje_fav:document.getElementById('f-personaje').value.trim(),recomienda:document.getElementById('f-recomienda').value.trim(),portada:document.getElementById('f-portada').value.trim(),
     rating_general:ratings.general,rating_personajes:ratings.personajes,rating_mundo:ratings.mundo,rating_trama:ratings.trama,rating_prosa:ratings.prosa,
   };
   if(editingBookId!==null){books=books.map(b=>b.id===editingBookId?book:b);}
@@ -751,7 +855,7 @@ function updateStars(field){const p=document.getElementById('star-'+field);if(!p
 function openDetail(id){
   const b=books.find(b=>b.id===id);if(!b)return;
   const cover=EMOJIS[b.id%EMOJIS.length];
-  const statusLabel={leido:'✅ Leído',leyendo:'📖 Leyendo',pendiente:'⏳ Pendiente',abandonado:'❌ Abandonado'}[b.estado];
+  const statusLabel={leido:'✅ Leído',leyendo:'📖 Leyendo',pendiente:'⏳ Pendiente',abandonado:'✗ Abandonado'}[b.estado];
   const ratingBars=[{label:'Personajes',val:b.rating_personajes||0},{label:'Worldbuilding',val:b.rating_mundo||0},{label:'Trama',val:b.rating_trama||0},{label:'Prosa',val:b.rating_prosa||0}]
     .map(r=>`<div class="rating-bar-row"><div class="rating-bar-label">${r.label}</div><div class="rating-bar-track"><div class="rating-bar-fill" style="width:${r.val*20}%"></div></div><div class="rating-bar-num">${r.val||'—'}</div></div>`).join('');
   document.getElementById('detail-content').innerHTML=`
@@ -768,7 +872,7 @@ function openDetail(id){
     ${b.tropes?`<div style="margin-bottom:12px;">${b.tropes.split(',').map(t=>`<span class="tag">${t.trim()}</span>`).join(' ')}</div>`:''}
     ${b.fecha_inicio||b.fecha_termino?`<div class="detail-row"><span class="detail-label">Fechas</span><span class="detail-value">${b.fecha_inicio||'—'} → ${b.fecha_termino||'en curso'}</span></div>`:''}
     ${b.paginas?`<div class="detail-row"><span class="detail-label">Páginas</span><span class="detail-value">${b.paginas}</span></div>`:''}
-    ${b.personaje_fav?`<div class="detail-row"><span class="detail-label">Personaje 💙</span><span class="detail-value">${b.personaje_fav}</span></div>`:''}
+    ${b.personaje_fav?`<div class="detail-row"><span class="detail-label">Personaje 🥰</span><span class="detail-value">${b.personaje_fav}</span></div>`:''}
     ${b.recomienda?`<div class="detail-row"><span class="detail-label">Recomendado a</span><span class="detail-value">${b.recomienda}</span></div>`:''}
     ${b.resena?`<div style="margin:14px 0;padding:12px;background:var(--bg-panel);border-radius:8px;border-left:3px solid var(--violet-light);"><div class="detail-label" style="margin-bottom:5px;">Mi reseña</div><div style="font-style:italic;line-height:1.6;">${b.resena}</div></div>`:''}
     ${b.cita?`<div style="margin:10px 0;padding:12px;background:rgba(212,175,106,0.08);border-radius:8px;border-left:3px solid var(--gold);"><div class="detail-label" style="margin-bottom:5px;">Cita favorita ✦</div><div style="font-style:italic;color:var(--gold-light);line-height:1.6;">"${b.cita}"</div></div>`:''}
@@ -790,7 +894,7 @@ async function deleteBook(id){
   showToast('🗑️ Libro eliminado');
 }
 
-// ── TBR ──────────────────────────────────────────────────────────────
+// ── TBR ───────────────────────────────────────────────────────────────────────
 function openTBRModal(){document.getElementById('tbrModal').classList.add('open');}
 function closeTBRModal(){document.getElementById('tbrModal').classList.remove('open');['titulo','autor','genero','razon'].forEach(f=>document.getElementById('tbr-'+f).value='');document.getElementById('tbr-prioridad').value='media';}
 
@@ -818,7 +922,8 @@ function renderTBR(){
   container.innerHTML=list.map(t=>`
     <div class="tbr-item">
       <div class="tbr-priority ${prioClass[t.prioridad]}">${t.prioridad[0].toUpperCase()}</div>
-      <div class="tbr-info"><div class="tbr-title">${t.titulo}</div>${t.autor?`<div class="tbr-author">por ${t.autor}</div>`:''}<div class="tbr-meta">${t.genero?'📚 '+t.genero:''} ${t.razon?'· "'+t.razon.slice(0,60)+(t.razon.length>60?'...':'')+'"':''}</div></div>
+      <div class="tbr-info"><div class="tbr-title">${t.titulo}</div>${t.autor?`<div class="tbr-author">por ${t.autor}</div>`:''}
+      <div class="tbr-meta">${t.genero?'📚 '+t.genero:''} ${t.razon?'· "'+t.razon.slice(0,60)+(t.razon.length>60?'...':'') +'"':''}</div></div>
       <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-end;flex-shrink:0;">
         <span style="font-size:11px;color:var(--text-dim);">${prioLabel[t.prioridad]}</span>
         <button class="btn btn-primary btn-sm" onclick="moveTBRToLibrary(${t.id})">📖 Empezar</button>
@@ -841,7 +946,7 @@ async function deleteTBR(id){
   await saveTBRSheet();showToast('🗑️ Eliminado del TBR');
 }
 
-// ── MOODBOARD ─────────────────────────────────────────────────────────
+// ── MOODBOARD ─────────────────────────────────────────────────────────────────
 function openMoodModal(id){
   selectedPalette=[];
   document.querySelectorAll('#mood-palette-picker .color-swatch').forEach(s=>s.classList.remove('selected'));
@@ -887,7 +992,7 @@ function renderMoodboards(){
     const paletteDots=(m.palette||[]).slice(0,8).map(c=>`<div class="palette-dot" style="background:${c}"></div>`).join('');
     const slots=Array.from({length:6},(_,i)=>{
       if(m.urls&&m.urls[i])return`<div class="moodboard-img-slot"><img src="${m.urls[i]}" onerror="this.parentElement.innerHTML='🖼️'" alt="mood"></div>`;
-      return`<div class="moodboard-img-slot">＋</div>`;
+      return`<div class="moodboard-img-slot">｛｝</div>`;
     }).join('');
     return`<div class="moodboard-card" onclick="openMoodDetail(${m.id})">
       <div class="moodboard-header"><div class="moodboard-book">${m.emojis?m.emojis+' ':''} ${m.libro}</div>${m.autor?`<div class="moodboard-author">por ${m.autor}</div>`:''}</div>
@@ -926,7 +1031,7 @@ async function deleteMood(id){
   await saveMoodsSheet();showToast('🗑️ Moodboard eliminado');
 }
 
-// ── PERSONAJES ────────────────────────────────────────────────────────
+// ── PERSONAJES ────────────────────────────────────────────────────────────────
 function openCharModal(id){
   if(id){
     editingCharId=id;const c=characters.find(c=>c.id===id);
@@ -976,12 +1081,12 @@ function renderChars(){
   if(currentCharTab!=='todos') list=list.filter(c=>c.tipo===currentCharTab);
   const grid=document.getElementById('chars-grid');
   if(!list.length){const emptyMsg={todos:'Agrega tu primer personaje',favorito:'No tienes favoritos aún',amado:'No hay personajes amados aún',odiado:'No hay personajes despreciados aún'}[currentCharTab];grid.innerHTML=`<div class="empty-state" style="grid-column:1/-1"><div class="icon">🎭</div><h3>Sin personajes aquí</h3><p>${emptyMsg}</p></div>`;return;}
-  const badgeMap={favorito:'<span class="char-type-badge badge-favorito">💛 Favorito</span>',amado:'<span class="char-type-badge badge-amado">💗 Lo amo</span>',odiado:'<span class="char-type-badge badge-odiado">🖤 Lo desprecio</span>'};
+  const badgeMap={favorito:'<span class="char-type-badge badge-favorito">🥰 Favorito</span>',amado:'<span class="char-type-badge badge-amado">💗 Lo amo</span>',odiado:'<span class="char-type-badge badge-odiado">🖤 Lo desprecio</span>'};
   grid.innerHTML=list.map(c=>{
     const rasgos=c.rasgos?c.rasgos.split(',').slice(0,4).map(r=>`<span class="tag">${r.trim()}</span>`).join(''):'';
     return`<div class="char-card ${c.tipo}">
       <div class="char-top"><div class="char-avatar ${c.tipo}">${c.emoji||'🎭'}</div><div><div class="char-name">${c.nombre}</div><div class="char-book">📖 ${c.libro}${c.autor?' · '+c.autor:''}</div>${badgeMap[c.tipo]||''}</div></div>
-      <div class="char-body">${c.razon?`<div class="char-razon">${c.razon.slice(0,160)}${c.razon.length>160?'...':''}</div>`:''}${c.cita?`<div style="margin:8px 0;font-size:13px;color:var(--gold-light);font-style:italic;padding:8px;background:rgba(212,175,106,0.08);border-radius:6px;">"${c.cita.slice(0,100)}${c.cita.length>100?'...':''}"</div>`:''}${rasgos?`<div class="char-traits">${rasgos}</div>`:''}</div>
+      <div class="char-body">${c.razon?`<div class="char-razon">${c.razon.slice(0,160)}${c.razon.length>160?'...':''}</div>`:''} ${c.cita?`<div style="margin:8px 0;font-size:13px;color:var(--gold-light);font-style:italic;padding:8px;background:rgba(212,175,106,0.08);border-radius:6px;">"${c.cita.slice(0,100)}${c.cita.length>100?'...':''}"</div>`:''} ${rasgos?`<div class="char-traits">${rasgos}</div>`:''}</div>
       <div class="char-actions"><button class="btn btn-ghost btn-sm" onclick="openCharModal(${c.id})">✏️ Editar</button><button class="btn btn-danger btn-sm" onclick="deleteChar(${c.id})">✕</button></div>
     </div>`;
   }).join('');
@@ -993,7 +1098,7 @@ async function deleteChar(id){
   await saveCharsSheet();showToast('🗑️ Personaje eliminado');
 }
 
-// ── STATS ─────────────────────────────────────────────────────────────
+// ── STATS ─────────────────────────────────────────────────────────────────────
 function renderStats(){
   const leidos=books.filter(b=>b.estado==='leido');
   const withR=leidos.filter(b=>b.rating_general>0);
@@ -1012,15 +1117,15 @@ function renderStats(){
   document.getElementById('stats-favorites').innerHTML=top.length?`<div style="display:flex;gap:14px;flex-wrap:wrap;">${top.map((b,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg-panel);border-radius:8px;flex:1;min-width:160px;"><span style="font-size:20px;">${['🥇','🥈','🥉'][i]}</span><div><div style="font-weight:600;color:var(--lavender-pale);">${b.titulo}</div><div style="font-size:12px;color:var(--text-dim);">${b.autor} · ${'★'.repeat(b.rating_general)}</div></div></div>`).join('')}</div>`:'<p style="color:var(--text-dim);font-style:italic;">Califica tus libros para ver tus favoritos</p>';
 }
 
-// ── TOAST ─────────────────────────────────────────────────────────────
+// ── TOAST ─────────────────────────────────────────────────────────────────────
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
 
-// ── CLOSE ON OVERLAY ──────────────────────────────────────────────────
+// ── CLOSE ON OVERLAY ──────────────────────────────────────────────────────────
 ['bookModal','detailModal','tbrModal','moodModal','moodDetailModal','charModal'].forEach(id=>{
   document.getElementById(id).addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
 });
 
-// ── INIT ──────────────────────────────────────────────────────────────
+// ── INIT ──────────────────────────────────────────────────────────────────────
 loadAll();
 </script>
 </body>
