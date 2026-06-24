@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Biblioteca Personal ✨</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+
+  :root {
+    --bg-deep: #f5f0fb;
+    --bg-card: #ffffff;
+    --bg-panel: #ede6f7;
+    --violet-dark: #8b6ab8;
+    --violet-mid: #a882cc;
+    --violet-light: #c4a8e0;
+    --lavender: #7c5fa0;
+    --lavender-pale: #3d2b5a;
+    --silver: #9b8ab0;
+    --gold: #8a6e3a;
+    --gold-light: #b08840;
+    --text-main: #2e1f4a;
+    --text-dim: #8070a0;
+    --accent: #a882cc;
+    --accent-glow: rgba(168,130,204,0.25);
+    --danger: #c06080;
+    --success: #5a9a78;
+    --border: rgba(168,130,204,0.35);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Crimson Text', serif;
+    background: var(--bg-deep);
+    color: var(--text-main);
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse at 20% 20%, rgba(168,130,204,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(196,168,224,0.15) 0%, transparent 50%);
+  }
+
+  .app { display: flex; min-height: 100vh; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 220px;
+    background: linear-gradient(180deg, #ede6f7 0%, #e4daf2 100%);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    position: fixed; height: 100vh; z-index: 100;
+  }
+
+  .sidebar-logo {
+    padding: 24px 16px 20px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-logo .icon-logo { font-size: 32px; display: block; margin-bottom: 8px; }
+  .sidebar-logo h1 {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 12px; color: var(--gold); line-height: 1.5;
+    text-shadow: 0 0 20px rgba(212,175,106,0.5);
+  }
+
+  .sidebar-nav { flex: 1; padding: 12px 0; overflow-y: auto; }
+
+  .nav-btn {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%; padding: 11px 20px;
+    background: none; border: none; cursor: pointer;
+    color: var(--text-dim); font-family: 'Crimson Text', serif;
+    font-size: 15px; text-align: left;
+    transition: all 0.2s; border-left: 3px solid transparent;
+  }
+  .nav-btn:hover { color: var(--violet-dark); background: rgba(168,130,204,0.12); }
+  .nav-btn.active {
+    color: var(--violet-dark); border-left-color: var(--accent);
+    background: rgba(168,130,204,0.18);
+  }
+  .nav-btn .nav-icon { font-size: 18px; width: 22px; text-align: center; }
+
+  .sidebar-footer {
+    padding: 16px;
+    border-top: 1px solid var(--border);
+    display: flex; flex-direction: column; gap: 8px;
+  }
+
+  .btn-export, .btn-import {
+    width: 100%; padding: 8px; border-radius: 8px;
+    font-family: 'Crimson Text', serif; font-size: 13px;
+    cursor: pointer; transition: all 0.2s; border: 1px solid var(--border);
+  }
+  .btn-export { background: rgba(176,127,212,0.15); color: var(--lavender); }
+  .btn-export:hover { background: rgba(176,127,212,0.25); }
+  .btn-import { background: rgba(112,176,144,0.15); color: #90d0b0; }
+  .btn-import:hover { background: rgba(112,176,144,0.25); }
+
+  /* ── MAIN ── */
+  .main { margin-left: 220px; flex: 1; padding: 32px; min-height: 100vh; }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .page-title {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 22px; color: var(--gold);
+    margin-bottom: 24px;
+    text-shadow: 0 0 30px rgba(212,175,106,0.4);
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── CARDS DE LIBROS ── */
+  .books-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+  }
+
+  .book-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .book-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    box-shadow: 0 8px 24px rgba(176,127,212,0.2);
+  }
+
+  .book-cover {
+    width: 100%; aspect-ratio: 2/3;
+    object-fit: cover; display: block;
+    background: var(--bg-panel);
+  }
+  .book-cover-placeholder {
+    width: 100%; aspect-ratio: 2/3;
+    background: linear-gradient(135deg, #d8caf0, #ede6f7);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 48px; color: var(--text-dim);
+  }
+
+  .book-info { padding: 12px; }
+  .book-title { font-size: 14px; font-weight: 600; color: var(--lavender-pale); margin-bottom: 4px; line-height: 1.3; }
+  .book-author { font-size: 13px; color: var(--text-dim); font-style: italic; margin-bottom: 6px; }
+  .book-status {
+    display: inline-block; padding: 2px 8px; border-radius: 20px;
+    font-size: 11px; font-weight: 600;
+  }
+  .status-leyendo { background: rgba(176,127,212,0.2); color: var(--lavender); }
+  .status-leido { background: rgba(112,176,144,0.2); color: #90d0b0; }
+  .status-pendiente { background: rgba(212,175,106,0.2); color: var(--gold-light); }
+  .status-abandonado { background: rgba(192,96,128,0.2); color: #e090a8; }
+
+  .stars { color: var(--gold); font-size: 13px; margin-bottom: 4px; }
+
+  /* ── BOTÓN AGREGAR ── */
+  .btn-add {
+    background: none; border: 2px dashed var(--border);
+    border-radius: 12px; cursor: pointer;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    aspect-ratio: 2/3; color: var(--text-dim);
+    font-family: 'Crimson Text', serif; font-size: 14px;
+    gap: 8px; transition: all 0.2s;
+    min-height: 200px;
+  }
+  .btn-add:hover { border-color: var(--accent); color: var(--lavender); }
+  .btn-add .plus { font-size: 32px; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7); z-index: 200;
+    align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px; width: 90%; max-width: 560px;
+    max-height: 90vh; overflow-y: auto;
+    position: relative;
+  }
+
+  .modal-title {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 16px; color: var(--gold);
+    margin-bottom: 20px;
+  }
+
+  .modal-close {
+    position: absolute; top: 16px; right: 16px;
+    background: none; border: none; color: var(--text-dim);
+    font-size: 20px; cursor: pointer;
+  }
+  .modal-close:hover { color: var(--danger); }
+
+  /* ── BÚSQUEDA DE PORTADA ── */
+  .search-portada {
+    background: #f0eaf8;
+    border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px; margin-bottom: 16px;
+  }
+  .search-portada-label {
+    font-size: 13px; color: var(--lavender); margin-bottom: 8px; display: block;
+  }
+  .search-row { display: flex; gap: 8px; }
+  .search-input {
+    flex: 1; background: #ffffff;
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 9px 12px; color: var(--text-main);
+    font-family: 'Crimson Text', serif; font-size: 15px;
+  }
+  .search-input:focus { outline: none; border-color: var(--accent); }
+
+  .btn-search {
+    background: var(--violet-mid); border: none;
+    border-radius: 8px; padding: 9px 16px;
+    color: white; cursor: pointer; font-size: 14px;
+    transition: background 0.2s; white-space: nowrap;
+  }
+  .btn-search:hover { background: var(--violet-light); }
+  .btn-search:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .search-results {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 8px; margin-top: 12px;
+  }
+  .search-result-item {
+    cursor: pointer; border-radius: 6px; overflow: hidden;
+    border: 2px solid transparent; transition: all 0.2s;
+    position: relative;
+  }
+  .search-result-item:hover { border-color: var(--accent); transform: scale(1.03); }
+  .search-result-item.selected { border-color: var(--gold); }
+  .search-result-item img { width: 100%; display: block; }
+  .search-result-item .result-title {
+    font-size: 10px; color: var(--text-dim); padding: 4px;
+    background: #f5f0fb; line-height: 1.2;
+  }
+
+  .selected-cover-preview {
+    margin-top: 10px; display: flex; align-items: center; gap: 12px;
+  }
+  .selected-cover-preview img {
+    width: 60px; border-radius: 4px;
+  }
+  .selected-cover-preview .cover-info { font-size: 13px; color: var(--lavender); }
+
+  .no-results { color: var(--text-dim); font-size: 13px; padding: 8px 0; font-style: italic; }
+
+  /* ── FORM ── */
+  .form-group { margin-bottom: 14px; }
+  .form-label { display: block; font-size: 13px; color: var(--lavender); margin-bottom: 6px; }
+  .form-input, .form-select, .form-textarea {
+    width: 100%; background: #ffffff;
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 9px 12px; color: var(--text-main);
+    font-family: 'Crimson Text', serif; font-size: 15px;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    outline: none; border-color: var(--accent);
+  }
+  .form-select option { background: #ffffff; color: var(--text-main); }
+  .form-textarea { resize: vertical; min-height: 80px; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .star-selector { display: flex; gap: 6px; }
+  .star-btn {
+    background: none; border: none; cursor: pointer;
+    font-size: 24px; color: var(--text-dim); transition: all 0.1s;
+  }
+  .star-btn.active, .star-btn:hover { color: var(--gold); }
+
+  .form-actions { display: flex; gap: 10px; margin-top: 20px; }
+
+  .btn-primary {
+    flex: 1; padding: 11px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--violet-mid), var(--violet-dark));
+    border: none; color: white;
+    font-family: 'Cinzel Decorative', cursive; font-size: 13px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(168,130,204,0.35); }
+
+  .btn-danger {
+    padding: 11px 20px; border-radius: 8px;
+    background: rgba(192,96,128,0.2); border: 1px solid rgba(192,96,128,0.4);
+    color: #e090a8; font-family: 'Crimson Text', serif;
+    font-size: 14px; cursor: pointer;
+  }
+  .btn-danger:hover { background: rgba(192,96,128,0.35); }
+
+  /* ── TBR ── */
+  .tbr-list { display: flex; flex-direction: column; gap: 12px; }
+  .tbr-item {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .tbr-cover {
+    width: 50px; aspect-ratio: 2/3; object-fit: cover;
+    border-radius: 4px; flex-shrink: 0;
+  }
+  .tbr-cover-placeholder {
+    width: 50px; aspect-ratio: 2/3;
+    background: var(--bg-panel); border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+  .tbr-info { flex: 1; }
+  .tbr-title { font-size: 16px; font-weight: 600; color: var(--lavender-pale); }
+  .tbr-author { font-size: 14px; color: var(--text-dim); font-style: italic; }
+  .tbr-genre { font-size: 12px; color: var(--gold); margin-top: 4px; }
+  .tbr-actions { display: flex; gap: 6px; }
+  .btn-small {
+    padding: 5px 10px; border-radius: 6px; border: 1px solid var(--border);
+    background: none; color: var(--text-dim); cursor: pointer; font-size: 13px;
+  }
+  .btn-small:hover { border-color: var(--accent); color: var(--lavender); }
+  .btn-move {
+    padding: 5px 10px; border-radius: 6px;
+    background: rgba(112,176,144,0.15); border: 1px solid rgba(112,176,144,0.3);
+    color: #90d0b0; cursor: pointer; font-size: 13px;
+  }
+
+  /* ── ESTADÍSTICAS ── */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  .stat-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px; text-align: center;
+  }
+  .stat-number { font-family: 'Cinzel Decorative', cursive; font-size: 36px; color: var(--gold); }
+  .stat-label { font-size: 13px; color: var(--text-dim); margin-top: 4px; }
+
+  .genre-chart { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .genre-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .genre-name { width: 120px; font-size: 14px; color: var(--text-dim); text-align: right; flex-shrink: 0; }
+  .genre-fill-bg { flex: 1; background: #e4daf2; border-radius: 20px; height: 10px; overflow: hidden; }
+  .genre-fill { height: 100%; border-radius: 20px; background: linear-gradient(90deg, var(--violet-dark), var(--violet-light)); transition: width 0.4s; }
+  .genre-count { width: 24px; font-size: 13px; color: var(--gold); font-weight: 600; }
+
+  /* ── MOODBOARD ── */
+  .moodboard-list { display: flex; flex-direction: column; gap: 16px; }
+  .moodboard-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px;
+    display: flex; gap: 16px; align-items: flex-start;
+  }
+  .moodboard-cover {
+    width: 70px; flex-shrink: 0;
+  }
+  .moodboard-cover img { width: 100%; border-radius: 6px; }
+  .moodboard-cover .no-cover {
+    width: 70px; aspect-ratio: 2/3; background: var(--bg-panel);
+    border-radius: 6px; display: flex; align-items: center;
+    justify-content: center; font-size: 28px;
+  }
+  .moodboard-content { flex: 1; }
+  .moodboard-title { font-size: 17px; font-weight: 600; color: var(--lavender-pale); margin-bottom: 4px; }
+  .moodboard-nota { font-size: 14px; color: var(--text-dim); font-style: italic; margin-top: 6px; }
+  .moodboard-edit {
+    background: none; border: 1px solid var(--border); border-radius: 6px;
+    padding: 4px 10px; color: var(--text-dim); cursor: pointer; font-size: 13px;
+    margin-top: 8px;
+  }
+  .moodboard-edit:hover { border-color: var(--accent); color: var(--lavender); }
+
+  /* ── PERSONAJES ── */
+  .char-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+  .char-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px;
+  }
+  .char-name { font-size: 18px; font-weight: 600; color: var(--lavender-pale); margin-bottom: 4px; }
+  .char-book { font-size: 13px; color: var(--text-dim); font-style: italic; margin-bottom: 8px; }
+  .char-feeling {
+    display: inline-block; padding: 3px 10px; border-radius: 20px;
+    font-size: 12px; margin-bottom: 8px;
+  }
+  .feeling-amado { background: rgba(212,175,106,0.2); color: var(--gold-light); }
+  .feeling-favorito { background: rgba(176,127,212,0.2); color: var(--lavender); }
+  .feeling-odiado { background: rgba(192,96,128,0.2); color: #e090a8; }
+  .char-reason { font-size: 14px; color: var(--text-dim); font-style: italic; }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center; padding: 60px 20px; color: var(--text-dim);
+  }
+  .empty-state .empty-icon { font-size: 56px; margin-bottom: 16px; opacity: 0.5; }
+  .empty-state p { font-size: 16px; font-style: italic; }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--violet-mid); border: 1px solid var(--accent);
+    color: white; padding: 12px 20px;
+    border-radius: 10px; font-size: 14px; z-index: 999;
+    transform: translateY(100px); opacity: 0;
+    transition: all 0.3s;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  @media (max-width: 640px) {
+    .sidebar { width: 60px; }
+    .sidebar-logo h1, .nav-btn span { display: none; }
+    .sidebar-logo .icon-logo { margin: 0; }
+    .nav-btn { padding: 12px; justify-content: center; }
+    .nav-btn .nav-icon { width: auto; }
+    .main { margin-left: 60px; padding: 16px; }
+    .form-row { grid-template-columns: 1fr; }
+    .search-results { grid-template-columns: repeat(3,1fr); }
+    .sidebar-footer { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <span class="icon-logo">📚</span>
+      <h1>Mi Biblioteca Personal</h1>
+    </div>
+    <div class="sidebar-nav">
+      <button class="nav-btn active" onclick="showPage('biblioteca')">
+        <span class="nav-icon">🏛️</span><span>Biblioteca</span>
+      </button>
+      <button class="nav-btn" onclick="showPage('tbr')">
+        <span class="nav-icon">📋</span><span>Por Leer</span>
+      </button>
+      <button class="nav-btn" onclick="showPage('moodboard')">
+        <span class="nav-icon">🎨</span><span>Moodboard</span>
+      </button>
+      <button class="nav-btn" onclick="showPage('personajes')">
+        <span class="nav-icon">👤</span><span>Personajes</span>
+      </button>
+      <button class="nav-btn" onclick="showPage('estadisticas')">
+        <span class="nav-icon">📊</span><span>Estadísticas</span>
+      </button>
+    </div>
+    <div class="sidebar-footer">
+      <button class="btn-export" onclick="exportarDatos()">📤 Exportar datos</button>
+      <button class="btn-import" onclick="document.getElementById('importInput').click()">📥 Importar datos</button>
+      <input type="file" id="importInput" accept=".json" style="display:none" onchange="importarDatos(event)">
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- BIBLIOTECA -->
+    <div class="page active" id="page-biblioteca">
+      <h2 class="page-title">✨ Mi Biblioteca</h2>
+      <div class="books-grid" id="books-grid">
+        <button class="btn-add" onclick="abrirModalLibro()">
+          <span class="plus">＋</span>
+          <span>Agregar libro</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- POR LEER (TBR) -->
+    <div class="page" id="page-tbr">
+      <h2 class="page-title">📋 Por Leer</h2>
+      <div style="margin-bottom:16px">
+        <button class="btn-primary" style="max-width:200px;padding:10px 20px" onclick="abrirModalTBR()">＋ Agregar libro</button>
+      </div>
+      <div class="tbr-list" id="tbr-list"></div>
+    </div>
+
+    <!-- MOODBOARD -->
+    <div class="page" id="page-moodboard">
+      <h2 class="page-title">🎨 Moodboard</h2>
+      <div class="moodboard-list" id="moodboard-list"></div>
+    </div>
+
+    <!-- PERSONAJES -->
+    <div class="page" id="page-personajes">
+      <h2 class="page-title">👤 Mis Personajes</h2>
+      <div style="margin-bottom:16px">
+        <button class="btn-primary" style="max-width:220px;padding:10px 20px" onclick="abrirModalPersonaje()">＋ Agregar personaje</button>
+      </div>
+      <div class="char-grid" id="char-grid"></div>
+    </div>
+
+    <!-- ESTADÍSTICAS -->
+    <div class="page" id="page-estadisticas">
+      <h2 class="page-title">📊 Mis Estadísticas</h2>
+      <div class="stats-grid" id="stats-grid"></div>
+      <div class="genre-chart">
+        <div style="font-family:'Cinzel Decorative',cursive;font-size:13px;color:var(--gold);margin-bottom:16px">Por género</div>
+        <div id="genre-bars"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL LIBRO -->
+<div class="modal-overlay" id="modal-libro">
+  <div class="modal">
+    <button class="modal-close" onclick="cerrarModal('modal-libro')">✕</button>
+    <h3 class="modal-title" id="modal-libro-titulo">✨ Agregar libro</h3>
+
+    <!-- BUSCADOR DE PORTADA -->
+    <div class="search-portada">
+      <span class="search-portada-label">🔍 Buscar portada automáticamente</span>
+      <div class="search-row">
+        <input type="text" id="buscar-portada-input" class="search-input"
+          placeholder="Escribe título o autor..."
+          onkeydown="if(event.key==='Enter') buscarPortada()">
+        <button class="btn-search" id="btn-buscar" onclick="buscarPortada()">Buscar</button>
+      </div>
+      <div id="search-results-container"></div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Título *</label>
+        <input type="text" id="libro-titulo" class="form-input" placeholder="Título del libro">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Autor/a *</label>
+        <input type="text" id="libro-autor" class="form-input" placeholder="Autor o autora">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Género</label>
+        <select id="libro-genero" class="form-select">
+          <option value="">Seleccionar...</option>
+          <option>Fantasía</option>
+          <option>Romance</option>
+          <option>Dark Romance</option>
+          <option>Romantasy</option>
+          <option>Ciencia Ficción</option>
+          <option>Terror</option>
+          <option>Thriller</option>
+          <option>Histórica</option>
+          <option>Literatura Clásica</option>
+          <option>No Ficción</option>
+          <option>Poesía</option>
+          <option>Infantil / Juvenil</option>
+          <option>Educación</option>
+          <option>Otro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Estado</label>
+        <select id="libro-estado" class="form-select">
+          <option value="pendiente">📋 Pendiente</option>
+          <option value="leyendo">📖 Leyendo</option>
+          <option value="leido">✅ Leído</option>
+          <option value="abandonado">💔 Abandonado</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Mi calificación</label>
+      <div class="star-selector" id="star-selector">
+        <button class="star-btn" data-val="1" onclick="setStars(1)">★</button>
+        <button class="star-btn" data-val="2" onclick="setStars(2)">★</button>
+        <button class="star-btn" data-val="3" onclick="setStars(3)">★</button>
+        <button class="star-btn" data-val="4" onclick="setStars(4)">★</button>
+        <button class="star-btn" data-val="5" onclick="setStars(5)">★</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Reseña / notas personales</label>
+      <textarea id="libro-resena" class="form-textarea" placeholder="¿Qué te pareció? ¿Qué sentiste?..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Frase favorita del libro</label>
+      <input type="text" id="libro-frase" class="form-input" placeholder="Una cita que te emocionó...">
+    </div>
+
+    <div class="form-actions">
+      <button class="btn-primary" onclick="guardarLibro()">Guardar libro</button>
+      <button class="btn-danger" id="btn-eliminar-libro" style="display:none" onclick="eliminarLibroActual()">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TBR -->
+<div class="modal-overlay" id="modal-tbr">
+  <div class="modal">
+    <button class="modal-close" onclick="cerrarModal('modal-tbr')">✕</button>
+    <h3 class="modal-title">📋 Agregar a Por Leer</h3>
+
+    <div class="search-portada">
+      <span class="search-portada-label">🔍 Buscar portada automáticamente</span>
+      <div class="search-row">
+        <input type="text" id="buscar-tbr-input" class="search-input"
+          placeholder="Escribe título o autor..."
+          onkeydown="if(event.key==='Enter') buscarPortadaTBR()">
+        <button class="btn-search" onclick="buscarPortadaTBR()">Buscar</button>
+      </div>
+      <div id="search-tbr-results"></div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Título *</label>
+      <input type="text" id="tbr-titulo" class="form-input">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Autor/a</label>
+      <input type="text" id="tbr-autor" class="form-input">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Género</label>
+      <select id="tbr-genero" class="form-select">
+        <option value="">Seleccionar...</option>
+        <option>Fantasía</option><option>Romance</option><option>Dark Romance</option>
+        <option>Romantasy</option><option>Ciencia Ficción</option><option>Terror</option>
+        <option>Thriller</option><option>Histórica</option><option>No Ficción</option>
+        <option>Poesía</option><option>Infantil / Juvenil</option><option>Otro</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">¿Por qué quiero leerlo?</label>
+      <textarea id="tbr-razon" class="form-textarea" style="min-height:60px"></textarea>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn-primary" onclick="guardarTBR()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PERSONAJE -->
+<div class="modal-overlay" id="modal-personaje">
+  <div class="modal">
+    <button class="modal-close" onclick="cerrarModal('modal-personaje')">✕</button>
+    <h3 class="modal-title">👤 Agregar personaje</h3>
+    <div class="form-group">
+      <label class="form-label">Nombre del personaje *</label>
+      <input type="text" id="char-nombre" class="form-input">
+    </div>
+    <div class="form-group">
+      <label class="form-label">De qué libro</label>
+      <input type="text" id="char-libro" class="form-input">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Lo/la siento...</label>
+      <select id="char-feeling" class="form-select">
+        <option value="favorito">⭐ Favorito/a</option>
+        <option value="amado">💛 Amado/a</option>
+        <option value="odiado">💔 Odiado/a</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">¿Por qué?</label>
+      <textarea id="char-razon" class="form-textarea" style="min-height:60px"
+        placeholder="¿Qué hace que este personaje te marque?"></textarea>
+    </div>
+    <div class="form-actions">
+      <button class="btn-primary" onclick="guardarPersonaje()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATOS ──
+let libros = JSON.parse(localStorage.getItem('biblioteca_libros') || '[]');
+let tbrList = JSON.parse(localStorage.getItem('biblioteca_tbr') || '[]');
+let personajes = JSON.parse(localStorage.getItem('biblioteca_personajes') || '[]');
+
+let libroEditandoIdx = null;
+let portadaSeleccionada = '';
+let portadaTBRSeleccionada = '';
+let starsActual = 0;
+
+// ── NAVEGACIÓN ──
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+
+  if (name === 'estadisticas') renderEstadisticas();
+  if (name === 'moodboard') renderMoodboard();
+}
+
+// ── BÚSQUEDA DE PORTADA (Google Books API) ──
+async function buscarPortada() {
+  const q = document.getElementById('buscar-portada-input').value.trim();
+  if (!q) return;
+  const btn = document.getElementById('btn-buscar');
+  btn.textContent = '⏳'; btn.disabled = true;
+  const container = document.getElementById('search-results-container');
+  await buscarPortadaGoogle(q, container, 'libro');
+  btn.textContent = 'Buscar'; btn.disabled = false;
+}
+
+async function buscarPortadaTBR() {
+  const q = document.getElementById('buscar-tbr-input').value.trim();
+  if (!q) return;
+  const container = document.getElementById('search-tbr-results');
+  await buscarPortadaGoogle(q, container, 'tbr');
+}
+
+async function buscarPortadaGoogle(q, container, tipo) {
+  container.innerHTML = '<p class="no-results">Buscando portadas...</p>';
+  try {
+    const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=10&langRestrict=`);
+    const data = await res.json();
+    const items = (data.items || []).filter(i => i.volumeInfo?.imageLinks);
+
+    if (!items.length) {
+      container.innerHTML = mostrarFallback(tipo);
+      return;
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'search-results';
+
+    items.forEach(item => {
+      const info = item.volumeInfo;
+      const thumb = (info.imageLinks.thumbnail || info.imageLinks.smallThumbnail).replace('http://', 'https://');
+      const titulo = info.title || q;
+      const autor = info.authors?.[0] || '';
+
+      const div = document.createElement('div');
+      div.className = 'search-result-item';
+      div.innerHTML = `
+        <img src="${thumb}" alt="${titulo}" loading="lazy" onerror="this.parentElement.style.display='none'">
+        <div class="result-title">${titulo.substring(0,40)}</div>
+      `;
+      div.onclick = () => seleccionarPortada(thumb, titulo, autor, tipo, div, container);
+      grid.appendChild(div);
+    });
+
+    container.innerHTML = '';
+    container.appendChild(grid);
+
+  } catch(e) {
+    container.innerHTML = mostrarFallback(tipo);
+  }
+}
+
+function mostrarFallback(tipo) {
+  return `
+    <p class="no-results">No se encontraron portadas. Puedes <strong>pegar una URL de imagen</strong>:</p>
+    <input type="text" class="search-input" style="margin-top:8px"
+      placeholder="Pega URL de imagen de portada..."
+      oninput="previewUrlPortada(this.value, '${tipo}')">
+  `;
+}
+
+function previewUrlPortada(url, tipo) {
+  if (!url.startsWith('http')) return;
+  if (tipo === 'libro') portadaSeleccionada = url;
+  else portadaTBRSeleccionada = url;
+  mostrarToast('✅ URL de portada guardada');
+}
+
+function seleccionarPortada(url, titulo, autor, tipo, el, container) {
+  container.querySelectorAll('.search-result-item').forEach(i => i.classList.remove('selected'));
+  el.classList.add('selected');
+
+  if (tipo === 'libro') {
+    portadaSeleccionada = url;
+    if (!document.getElementById('libro-titulo').value) document.getElementById('libro-titulo').value = titulo;
+    if (!document.getElementById('libro-autor').value && autor) document.getElementById('libro-autor').value = autor;
+  } else {
+    portadaTBRSeleccionada = url;
+    if (!document.getElementById('tbr-titulo').value) document.getElementById('tbr-titulo').value = titulo;
+    if (!document.getElementById('tbr-autor').value && autor) document.getElementById('tbr-autor').value = autor;
+  }
+  mostrarToast('✅ Portada seleccionada');
+}
+
+// ── ESTRELLAS ──
+function setStars(n) {
+  starsActual = n;
+  document.querySelectorAll('#star-selector .star-btn').forEach(b => {
+    b.classList.toggle('active', parseInt(b.dataset.val) <= n);
+  });
+}
+
+// ── MODAL LIBRO ──
+function abrirModalLibro(idx = null) {
+  libroEditandoIdx = idx;
+  portadaSeleccionada = '';
+  starsActual = 0;
+  document.getElementById('search-results-container').innerHTML = '';
+  document.getElementById('buscar-portada-input').value = '';
+
+  const campos = ['titulo','autor','genero','estado','resena','frase'];
+  if (idx !== null) {
+    const l = libros[idx];
+    campos.forEach(c => {
+      const el = document.getElementById('libro-' + c);
+      if (el) el.value = l[c] || '';
+    });
+    portadaSeleccionada = l.portada || '';
+    setStars(l.rating || 0);
+    document.getElementById('modal-libro-titulo').textContent = '✏️ Editar libro';
+    document.getElementById('btn-eliminar-libro').style.display = 'block';
+  } else {
+    campos.forEach(c => {
+      const el = document.getElementById('libro-' + c);
+      if (el) el.value = c === 'estado' ? 'pendiente' : '';
+    });
+    setStars(0);
+    document.getElementById('modal-libro-titulo').textContent = '✨ Agregar libro';
+    document.getElementById('btn-eliminar-libro').style.display = 'none';
+  }
+
+  document.getElementById('modal-libro').classList.add('open');
+}
+
+function guardarLibro() {
+  const titulo = document.getElementById('libro-titulo').value.trim();
+  if (!titulo) { mostrarToast('⚠️ El título es obligatorio'); return; }
+
+  const libro = {
+    titulo,
+    autor: document.getElementById('libro-autor').value.trim(),
+    genero: document.getElementById('libro-genero').value,
+    estado: document.getElementById('libro-estado').value,
+    rating: starsActual,
+    resena: document.getElementById('libro-resena').value.trim(),
+    frase: document.getElementById('libro-frase').value.trim(),
+    portada: portadaSeleccionada,
+    fecha: new Date().toISOString()
+  };
+
+  if (libroEditandoIdx !== null) {
+    libro.fecha = libros[libroEditandoIdx].fecha;
+    libros[libroEditandoIdx] = libro;
+  } else {
+    libros.push(libro);
+  }
+
+  guardarStorage();
+  cerrarModal('modal-libro');
+  renderBiblioteca();
+  mostrarToast('📚 Libro guardado');
+}
+
+function eliminarLibroActual() {
+  if (libroEditandoIdx === null) return;
+  if (!confirm('¿Eliminar este libro?')) return;
+  libros.splice(libroEditandoIdx, 1);
+  guardarStorage();
+  cerrarModal('modal-libro');
+  renderBiblioteca();
+  mostrarToast('🗑️ Libro eliminado');
+}
+
+// ── RENDER BIBLIOTECA ──
+function renderBiblioteca() {
+  const grid = document.getElementById('books-grid');
+  grid.innerHTML = '';
+
+  libros.forEach((l, i) => {
+    const card = document.createElement('div');
+    card.className = 'book-card';
+    card.onclick = () => abrirModalLibro(i);
+
+    const estrellas = '★'.repeat(l.rating || 0) + '☆'.repeat(5 - (l.rating || 0));
+    const statusClass = { leido:'status-leido', leyendo:'status-leyendo', pendiente:'status-pendiente', abandonado:'status-abandonado' }[l.estado] || '';
+    const statusLabel = { leido:'✅ Leído', leyendo:'📖 Leyendo', pendiente:'📋 Pendiente', abandonado:'💔 Abandonado' }[l.estado] || '';
+
+    card.innerHTML = `
+      ${l.portada
+        ? `<img src="${l.portada}" class="book-cover" alt="${l.titulo}" loading="lazy">`
+        : `<div class="book-cover-placeholder">📖</div>`}
+      <div class="book-info">
+        <div class="book-title">${l.titulo}</div>
+        <div class="book-author">${l.autor || ''}</div>
+        ${l.rating ? `<div class="stars">${estrellas}</div>` : ''}
+        <span class="book-status ${statusClass}">${statusLabel}</span>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  const addBtn = document.createElement('button');
+  addBtn.className = 'btn-add';
+  addBtn.innerHTML = '<span class="plus">＋</span><span>Agregar libro</span>';
+  addBtn.onclick = () => abrirModalLibro();
+  grid.appendChild(addBtn);
+}
+
+// ── TBR ──
+function abrirModalTBR() {
+  portadaTBRSeleccionada = '';
+  document.getElementById('search-tbr-results').innerHTML = '';
+  document.getElementById('buscar-tbr-input').value = '';
+  ['titulo','autor','razon'].forEach(c => document.getElementById('tbr-' + c).value = '');
+  document.getElementById('tbr-genero').value = '';
+  document.getElementById('modal-tbr').classList.add('open');
+}
+
+function guardarTBR() {
+  const titulo = document.getElementById('tbr-titulo').value.trim();
+  if (!titulo) { mostrarToast('⚠️ El título es obligatorio'); return; }
+
+  tbrList.push({
+    titulo,
+    autor: document.getElementById('tbr-autor').value.trim(),
+    genero: document.getElementById('tbr-genero').value,
+    razon: document.getElementById('tbr-razon').value.trim(),
+    portada: portadaTBRSeleccionada,
+    fecha: new Date().toISOString()
+  });
+
+  guardarStorage();
+  cerrarModal('modal-tbr');
+  renderTBR();
+  mostrarToast('📋 Agregado a Por Leer');
+}
+
+function moverABiblioteca(idx) {
+  const t = tbrList[idx];
+  libros.push({ ...t, estado: 'pendiente', rating: 0, resena: '', frase: '' });
+  tbrList.splice(idx, 1);
+  guardarStorage();
+  renderTBR();
+  renderBiblioteca();
+  mostrarToast('📚 Movido a Biblioteca');
+}
+
+function eliminarTBR(idx) {
+  tbrList.splice(idx, 1);
+  guardarStorage();
+  renderTBR();
+}
+
+function renderTBR() {
+  const list = document.getElementById('tbr-list');
+  if (!tbrList.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>Tu lista de deseos está vacía.<br>¡Agrega los libros que quieres leer!</p></div>`;
+    return;
+  }
+  list.innerHTML = tbrList.map((t, i) => `
+    <div class="tbr-item">
+      ${t.portada
+        ? `<img src="${t.portada}" class="tbr-cover" loading="lazy">`
+        : `<div class="tbr-cover-placeholder">📖</div>`}
+      <div class="tbr-info">
+        <div class="tbr-title">${t.titulo}</div>
+        <div class="tbr-author">${t.autor || ''}</div>
+        ${t.genero ? `<div class="tbr-genre">${t.genero}</div>` : ''}
+        ${t.razon ? `<div style="font-size:13px;color:var(--text-dim);margin-top:4px;font-style:italic">"${t.razon}"</div>` : ''}
+      </div>
+      <div class="tbr-actions">
+        <button class="btn-move" onclick="moverABiblioteca(${i})">→ Biblioteca</button>
+        <button class="btn-small" onclick="eliminarTBR(${i})">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── MOODBOARD ──
+function renderMoodboard() {
+  const list = document.getElementById('moodboard-list');
+  const librosConPortada = libros.filter(l => l.portada || l.resena || l.frase);
+
+  if (!librosConPortada.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">🎨</div><p>Agrega libros con portada o reseña para ver el moodboard.</p></div>`;
+    return;
+  }
+
+  list.innerHTML = librosConPortada.map(l => `
+    <div class="moodboard-card">
+      <div class="moodboard-cover">
+        ${l.portada
+          ? `<img src="${l.portada}" loading="lazy">`
+          : `<div class="no-cover">📖</div>`}
+      </div>
+      <div class="moodboard-content">
+        <div class="moodboard-title">${l.titulo}</div>
+        <div style="font-size:13px;color:var(--text-dim);font-style:italic">${l.autor || ''}</div>
+        ${l.frase ? `<div style="margin-top:10px;padding:10px;background:rgba(176,127,212,0.08);border-left:3px solid var(--accent);border-radius:4px;font-size:14px;font-style:italic;color:var(--lavender-pale)">"${l.frase}"</div>` : ''}
+        ${l.resena ? `<div class="moodboard-nota">${l.resena}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── PERSONAJES ──
+function abrirModalPersonaje() {
+  ['nombre','libro','razon'].forEach(c => document.getElementById('char-' + c).value = '');
+  document.getElementById('char-feeling').value = 'favorito';
+  document.getElementById('modal-personaje').classList.add('open');
+}
+
+function guardarPersonaje() {
+  const nombre = document.getElementById('char-nombre').value.trim();
+  if (!nombre) { mostrarToast('⚠️ El nombre es obligatorio'); return; }
+
+  personajes.push({
+    nombre,
+    libro: document.getElementById('char-libro').value.trim(),
+    feeling: document.getElementById('char-feeling').value,
+    razon: document.getElementById('char-razon').value.trim()
+  });
+
+  guardarStorage();
+  cerrarModal('modal-personaje');
+  renderPersonajes();
+  mostrarToast('👤 Personaje guardado');
+}
+
+function renderPersonajes() {
+  const grid = document.getElementById('char-grid');
+  if (!personajes.length) {
+    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">👤</div><p>Aún no hay personajes.<br>¡Agrega los que te han marcado!</p></div>`;
+    return;
+  }
+
+  const labels = { favorito:'⭐ Favorito/a', amado:'💛 Amado/a', odiado:'💔 Odiado/a' };
+  grid.innerHTML = personajes.map((c, i) => `
+    <div class="char-card">
+      <div class="char-name">${c.nombre}</div>
+      ${c.libro ? `<div class="char-book">${c.libro}</div>` : ''}
+      <span class="char-feeling feeling-${c.feeling}">${labels[c.feeling]}</span>
+      ${c.razon ? `<div class="char-reason">"${c.razon}"</div>` : ''}
+      <button onclick="eliminarPersonaje(${i})" class="btn-small" style="margin-top:10px">✕ Eliminar</button>
+    </div>
+  `).join('');
+}
+
+function eliminarPersonaje(idx) {
+  personajes.splice(idx, 1);
+  guardarStorage();
+  renderPersonajes();
+}
+
+// ── ESTADÍSTICAS ──
+function renderEstadisticas() {
+  const leidos = libros.filter(l => l.estado === 'leido').length;
+  const leyendo = libros.filter(l => l.estado === 'leyendo').length;
+  const pendientes = libros.filter(l => l.estado === 'pendiente').length;
+  const avgRating = libros.filter(l => l.rating).reduce((s, l, _, a) => s + l.rating / a.length, 0);
+
+  document.getElementById('stats-grid').innerHTML = `
+    <div class="stat-card"><div class="stat-number">${libros.length}</div><div class="stat-label">Total en biblioteca</div></div>
+    <div class="stat-card"><div class="stat-number">${leidos}</div><div class="stat-label">Libros leídos</div></div>
+    <div class="stat-card"><div class="stat-number">${leyendo}</div><div class="stat-label">Leyendo ahora</div></div>
+    <div class="stat-card"><div class="stat-number">${tbrList.length}</div><div class="stat-label">En lista Por Leer</div></div>
+    <div class="stat-card"><div class="stat-number">${avgRating ? avgRating.toFixed(1) : '—'}</div><div class="stat-label">Rating promedio</div></div>
+    <div class="stat-card"><div class="stat-number">${pendientes}</div><div class="stat-label">Pendientes</div></div>
+  `;
+
+  const generos = {};
+  libros.forEach(l => { if (l.genero) generos[l.genero] = (generos[l.genero] || 0) + 1; });
+  const max = Math.max(...Object.values(generos), 1);
+  const sorted = Object.entries(generos).sort((a, b) => b[1] - a[1]);
+
+  document.getElementById('genre-bars').innerHTML = sorted.length
+    ? sorted.map(([g, n]) => `
+        <div class="genre-bar">
+          <div class="genre-name">${g}</div>
+          <div class="genre-fill-bg"><div class="genre-fill" style="width:${(n/max*100).toFixed(0)}%"></div></div>
+          <div class="genre-count">${n}</div>
+        </div>
+      `).join('')
+    : '<p style="color:var(--text-dim);font-style:italic">Agrega libros con género para ver el gráfico.</p>';
+}
+
+// ── STORAGE ──
+function guardarStorage() {
+  localStorage.setItem('biblioteca_libros', JSON.stringify(libros));
+  localStorage.setItem('biblioteca_tbr', JSON.stringify(tbrList));
+  localStorage.setItem('biblioteca_personajes', JSON.stringify(personajes));
+}
+
+function exportarDatos() {
+  const data = { libros, tbr: tbrList, personajes, exportado: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `mi-biblioteca-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  mostrarToast('📤 Datos exportados');
+}
+
+function importarDatos(event) {
+  const file = event.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.libros) libros = data.libros;
+      if (data.tbr) tbrList = data.tbr;
+      if (data.personajes) personajes = data.personajes;
+      guardarStorage();
+      renderBiblioteca(); renderTBR(); renderPersonajes();
+      mostrarToast('📥 Datos importados');
+    } catch { mostrarToast('⚠️ Archivo inválido'); }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// ── MODAL ──
+function cerrarModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+// ── TOAST ──
+function mostrarToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── INIT ──
+renderBiblioteca();
+renderTBR();
+renderPersonajes();
+</script>
+</body>
+</html>
