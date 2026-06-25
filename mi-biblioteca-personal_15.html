@@ -1165,26 +1165,27 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
 // ── BUSCAR PORTADA ───────────────────────────────────────────────────────────
 async function buscarPortada() {
   const titulo = document.getElementById('f-titulo').value.trim();
+  const autor = document.getElementById('f-autor').value.trim();
   if (!titulo) { showToast('⚠️ Escribe el título primero'); return; }
   showToast('🔍 Buscando portada...');
   try {
-    const q = encodeURIComponent(titulo.toLowerCase().replace(/ /g,'+'));
-    const res = await fetch('https://openlibrary.org/search.json?title='+q+'&limit=1&fields=cover_i,title,author_name');
+    const q = encodeURIComponent(titulo + (autor ? ' ' + autor : ''));
+    const res = await fetch('https://openlibrary.org/search.json?q='+q+'&limit=5&fields=cover_i,title,author_name,isbn');
     const data = await res.json();
-    if (data.docs && data.docs[0] && data.docs[0].cover_i) {
-      const coverId = data.docs[0].cover_i;
-      const url = 'https://covers.openlibrary.org/b/id/'+coverId+'-L.jpg';
+    const conPortada = data.docs ? data.docs.find(d => d.cover_i) : null;
+    if (conPortada) {
+      const url = 'https://covers.openlibrary.org/b/id/'+conPortada.cover_i+'-L.jpg';
       document.getElementById('f-portada').value = url;
       document.getElementById('portada-img').src = url;
       document.getElementById('portada-preview').style.display = 'block';
-      if (data.docs[0].author_name && !document.getElementById('f-autor').value) {
-        document.getElementById('f-autor').value = data.docs[0].author_name[0];
+      if (conPortada.author_name && !document.getElementById('f-autor').value) {
+        document.getElementById('f-autor').value = conPortada.author_name[0];
       }
       showToast('✅ Portada encontrada');
     } else {
-      showToast('⚠️ No se encontró portada — intenta con otro título');
+      showToast('⚠️ No se encontró — prueba agregar el autor');
     }
-  } catch(e) { showToast('⚠️ Error al buscar'); }
+  } catch(e) { showToast('⚠️ Error de conexión'); }
 }
 
 // ── AUTOCOMPLETE LIBROS ──────────────────────────────────────────────────────
@@ -1252,8 +1253,4 @@ document.addEventListener('click', function(e) {
   }
 });
 
-// ── INIT ──────────────────────────────────────────────────────────────────────
-loadAll();
-</script>
-</body>
-</html>
+// ── INIT ─────────────────────────────────────────────────────
