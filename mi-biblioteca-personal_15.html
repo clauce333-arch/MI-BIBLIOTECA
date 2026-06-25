@@ -187,6 +187,23 @@
   .empty-state h3{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--lavender);margin-bottom:7px;}
   .empty-state p{font-size:13px;font-style:italic;}
   .ornament{color:var(--violet-light);font-size:11px;letter-spacing:8px;text-align:center;margin:18px 0;opacity:0.4;}
+  /* ── TROPES CON COLORES ── */
+  .trope-tag{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;display:inline-block;margin:2px;}
+  /* ── BUSCADOR GLOBAL ── */
+  .global-search-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:2000;align-items:flex-start;justify-content:center;padding-top:80px;backdrop-filter:blur(4px);}
+  .global-search-overlay.open{display:flex;}
+  .global-search-box{background:var(--bg-card);border:1px solid var(--violet-light);border-radius:16px;padding:24px;width:90%;max-width:600px;box-shadow:0 20px 60px rgba(0,0,0,0.5);}
+  .global-search-input{width:100%;background:var(--bg-panel);border:1px solid var(--border);border-radius:10px;padding:14px 18px;color:var(--text-main);font-family:Crimson Text,serif;font-size:18px;outline:none;transition:border-color 0.2s;}
+  .global-search-input:focus{border-color:var(--violet-light);}
+  .global-search-results{margin-top:16px;max-height:400px;overflow-y:auto;}
+  .global-result-item{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:8px;cursor:pointer;transition:background 0.15s;border-bottom:1px solid var(--border);}
+  .global-result-item:hover{background:rgba(176,127,212,0.1);}
+  .global-result-img{width:36px;height:50px;object-fit:cover;border-radius:4px;flex-shrink:0;}
+  .global-result-emoji{width:36px;height:50px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+  .global-result-title{font-family:Cormorant Garamond,serif;font-size:15px;font-weight:600;color:var(--lavender-pale);}
+  .global-result-sub{font-size:12px;color:var(--text-dim);font-style:italic;}
+  .global-result-type{font-size:10px;padding:2px 7px;border-radius:10px;background:rgba(107,63,160,0.3);color:var(--lavender);}
+  .search-kbd{background:var(--bg-panel);border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:11px;color:var(--text-dim);}
   /* ── VISTA ESTANTERÍA ── */
   .shelf-view{display:none;}
   .shelf-view.active{display:block;}
@@ -315,6 +332,11 @@
   <div class="sidebar-logo">
     <span class="icon-logo">📚</span>
     <h1>Mi Biblioteca<br>Personal</h1>
+  </div>
+  <div style="padding:6px 16px;border-bottom:1px solid var(--border);">
+    <button onclick="openGlobalSearch()" style="width:100%;background:rgba(176,127,212,0.1);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text-dim);cursor:pointer;font-family:Crimson Text,serif;font-size:13px;display:flex;align-items:center;gap:8px;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--violet-light)'" onmouseout="this.style.borderColor='var(--border)'">
+      <span>🔍</span><span>Buscar en todo...</span><span class="search-kbd" style="margin-left:auto;">Ctrl+K</span>
+    </button>
   </div>
   <div class="sync-status" id="syncStatus">
     <div class="sync-dot syncing" id="syncDot"></div>
@@ -465,6 +487,7 @@
   <div class="page" id="page-estadisticas">
     <div class="page-header">
       <div><div class="page-title">📊 Estadísticas</div><div class="page-subtitle">El mapa de tu vida lectora</div></div>
+      <button class="btn btn-ghost" onclick="exportarDatos()">📤 Exportar datos</button>
     </div>
     <div class="stats-overview" id="stats-overview"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
@@ -693,6 +716,15 @@
 
 <div class="toast" id="toast"></div>
 
+<!-- BUSCADOR GLOBAL -->
+<div class="global-search-overlay" id="globalSearch" onclick="closeGlobalSearch(event)">
+  <div class="global-search-box">
+    <input type="text" class="global-search-input" id="globalSearchInput" placeholder="🔍 Buscar libros, personajes, géneros..." oninput="doGlobalSearch()" autocomplete="off">
+    <div style="font-size:11px;color:var(--text-dim);margin-top:8px;">Busca en libros, TBR y personajes · <span style="color:var(--lavender);">Esc</span> para cerrar</div>
+    <div class="global-search-results" id="globalSearchResults"></div>
+  </div>
+</div>
+
 <script>
 // ── CONFIG ──────────────────────────────────────────────────────────────────
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzTOJyg5c0vMYY37sTI6_tN8WPJu0swnqAfqBYFwuTCPpI0TVoojbKpqnUrPdKqDO7z0g/exec';
@@ -901,7 +933,8 @@ function populateGenreFilter() {
 
 function bookCardHTML(b) {
   const stars=starsHTML(b.rating_general||0);
-  const tags=b.tropes?b.tropes.split(',').slice(0,3).map(t=>`<span class="tag">${t.trim()}</span>`).join(''):'';
+  const TROPE_COLORS=[['#3d1f7a','#c8b4e8'],['#1a3a6a','#90c8f0'],['#2a6a3a','#90d0b0'],['#6a3a1a','#f0c890'],['#6a1a3a','#f090b0'],['#1a5a5a','#90e0d0'],['#5a3a6a','#d0b0f0'],['#6a4a1a','#e0c890']];
+  const tags=b.tropes?b.tropes.split(',').slice(0,3).map(function(t,i){const c=TROPE_COLORS[i%TROPE_COLORS.length];return '<span class="trope-tag" style="background:'+c[0]+';color:'+c[1]+';border:1px solid '+c[1]+'40;">'+t.trim()+'</span>';}).join(''):'';
   const statusLabel={leido:'✅ Leído',leyendo:'📖 Leyendo',pendiente:'⏳ Pendiente',abandonado:'✗ Abandonado'}[b.estado];
   const cover=EMOJIS[b.id%EMOJIS.length];
   const coverHTML=b.portada
@@ -1545,6 +1578,91 @@ function guardarMeta() {
   localStorage.setItem('reto_meta_' + year, val);
   renderReto();
   showToast('Meta guardada: ' + val + ' libros');
+}
+
+// ── BUSCADOR GLOBAL ──────────────────────────────────────────────────────────
+function openDetailFromSearch(id) {
+  showPage('biblioteca');
+  setTimeout(function(){ openDetail(id); }, 300);
+}
+function showPage_tbr() { showPage('tbr'); }
+function showPage_personajes() { showPage('personajes'); }
+
+function openGlobalSearch() {
+  document.getElementById('globalSearch').classList.add('open');
+  setTimeout(function(){ document.getElementById('globalSearchInput').focus(); }, 100);
+}
+
+function closeGlobalSearch(e) {
+  if (!e || e.target === document.getElementById('globalSearch')) {
+    document.getElementById('globalSearch').classList.remove('open');
+    document.getElementById('globalSearchInput').value = '';
+    document.getElementById('globalSearchResults').innerHTML = '';
+  }
+}
+
+document.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); openGlobalSearch(); }
+  if (e.key === 'Escape') closeGlobalSearch();
+});
+
+function doGlobalSearch() {
+  const q = document.getElementById('globalSearchInput').value.trim().toLowerCase();
+  const results = document.getElementById('globalSearchResults');
+  if (!q || q.length < 2) { results.innerHTML = ''; return; }
+
+  let items = [];
+
+  // Buscar en libros
+  books.filter(function(b){ return b.titulo.toLowerCase().includes(q) || b.autor.toLowerCase().includes(q) || (b.genero||'').toLowerCase().includes(q) || (b.tropes||'').toLowerCase().includes(q); }).slice(0,5).forEach(function(b) {
+    items.push({type:'📚 Libro', title:b.titulo, sub:b.autor, img:b.portada, emoji:EMOJIS[b.id%EMOJIS.length], action:'openDetailFromSearch(' + b.id + ')'});
+  });
+
+  // Buscar en TBR
+  tbrItems.filter(function(t){ return t.titulo.toLowerCase().includes(q) || (t.autor||'').toLowerCase().includes(q); }).slice(0,3).forEach(function(t) {
+    items.push({type:'📋 TBR', title:t.titulo, sub:t.autor||'', img:'', emoji:'📋', action:'showPage_tbr()'});
+  });
+
+  // Buscar en personajes
+  characters.filter(function(c){ return c.nombre.toLowerCase().includes(q) || c.libro.toLowerCase().includes(q); }).slice(0,3).forEach(function(c) {
+    items.push({type:'🎭 Personaje', title:c.nombre, sub:c.libro, img:'', emoji:c.emoji||'🎭', action:'showPage_personajes()'});
+  });
+
+  if (!items.length) {
+    results.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-dim);font-style:italic;">Sin resultados para "' + q + '"</div>';
+    return;
+  }
+
+  let h = '';
+  items.forEach(function(item) {
+    h += '<div class="global-result-item" onclick="' + item.action + ';closeGlobalSearch()">';
+    h += item.img ? '<img class="global-result-img" src="' + item.img + '">' : '<div class="global-result-emoji">' + item.emoji + '</div>';
+    h += '<div style="flex:1;"><div class="global-result-title">' + item.title + '</div>';
+    h += '<div class="global-result-sub">' + item.sub + '</div></div>';
+    h += '<span class="global-result-type">' + item.type + '</span>';
+    h += '</div>';
+  });
+  results.innerHTML = h;
+}
+
+// ── EXPORTAR DATOS ────────────────────────────────────────────────────────────
+function exportarDatos() {
+  const data = {
+    exportado: new Date().toLocaleDateString('es-CL'),
+    libros: books,
+    tbr: tbrItems,
+    personajes: characters,
+    moodboards: moodboards
+  };
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'mi-biblioteca-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('✅ Datos exportados');
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
