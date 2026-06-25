@@ -1287,9 +1287,8 @@ function renderShelf() {
   if (q) list = list.filter(b=>b.titulo.toLowerCase().includes(q)||b.autor.toLowerCase().includes(q));
   if (status) list = list.filter(b=>b.estado===status);
 
-  // Agrupar por género
   const byGenre = {};
-  list.forEach(b => {
+  list.forEach(function(b) {
     const g = b.genero || 'Sin género';
     if (!byGenre[g]) byGenre[g] = [];
     byGenre[g].push(b);
@@ -1301,17 +1300,22 @@ function renderShelf() {
     return;
   }
 
-  container.innerHTML = Object.entries(byGenre).sort((a,b)=>a[0].localeCompare(b[0])).map(([genre, libros]) => {
-    const lomos = libros.map((b,i) => {
+  let html = '';
+  const genres = Object.keys(byGenre).sort();
+  genres.forEach(function(genre) {
+    const libros = byGenre[genre];
+    let lomos = '';
+    libros.forEach(function(b) {
       const color = LOMO_COLORS[Math.abs(b.id) % LOMO_COLORS.length];
       if (b.portada) {
-        const lomoHTML = b.portada ? '<div class="lomo" onclick="openDetail(' + b.id + ')" title="' + b.titulo + '"><img src="' + b.portada + '"></div>' : '<div class="lomo-sin-portada" onclick="openDetail(' + b.id + ')" style="background:' + color + ';border-radius:3px 3px 0 0;cursor:pointer;">' + b.titulo.slice(0,15) + '</div>';
-        return lomoHTML;
-
-
-    }).join('');
-    return '<div class="shelf-genre-section"><div class="shelf-genre-title">'+genre+' ('+libros.length+')</div><div class="shelf-row">'+lomos+'</div></div>';
-  }).join('');
+        lomos += '<div class="lomo" onclick="openDetail(' + b.id + ')" title="' + b.titulo + '"><img src="' + b.portada + '"></div>';
+      } else {
+        lomos += '<div class="lomo-sin-portada" onclick="openDetail(' + b.id + ')" style="background:' + color + ';border-radius:3px 3px 0 0;cursor:pointer;">' + b.titulo.slice(0,15) + '</div>';
+      }
+    });
+    html += '<div class="shelf-genre-section"><div class="shelf-genre-title">' + genre + ' (' + libros.length + ')</div><div class="shelf-row">' + lomos + '</div></div>';
+  });
+  container.innerHTML = html;
 }
 
 // ── AUTOCOMPLETE GÉNERO ───────────────────────────────────────────────────────
@@ -1524,7 +1528,4 @@ function guardarMeta() {
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
-loadAll();
-</script>
-</body>
-</html>
+load
