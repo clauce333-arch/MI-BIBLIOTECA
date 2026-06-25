@@ -187,6 +187,28 @@
   .empty-state h3{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--lavender);margin-bottom:7px;}
   .empty-state p{font-size:13px;font-style:italic;}
   .ornament{color:var(--violet-light);font-size:11px;letter-spacing:8px;text-align:center;margin:18px 0;opacity:0.4;}
+  /* ── VISTA ESTANTERÍA ── */
+  .shelf-view{display:none;}
+  .shelf-view.active{display:block;}
+  .grid-view.hidden{display:none;}
+  .shelf-genre-section{margin-bottom:32px;}
+  .shelf-genre-title{font-family:'Cinzel Decorative',cursive;font-size:12px;color:var(--gold);letter-spacing:2px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+  .shelf-row{display:flex;gap:4px;flex-wrap:wrap;padding:16px 12px;background:linear-gradient(180deg,#2a1f45 0%,#1a1330 100%);border-radius:10px;border:1px solid var(--border);position:relative;box-shadow:inset 0 -4px 8px rgba(0,0,0,0.3);}
+  .shelf-row::after{content:'';position:absolute;bottom:0;left:0;right:0;height:6px;background:linear-gradient(180deg,#3d2a6a,#2a1f45);border-radius:0 0 10px 10px;}
+  .lomo{width:32px;height:160px;border-radius:3px 3px 0 0;cursor:pointer;position:relative;display:flex;align-items:center;justify-content:center;transition:transform 0.2s;flex-shrink:0;overflow:hidden;}
+  .lomo:hover{transform:translateY(-8px);z-index:10;}
+  .lomo img{width:100%;height:100%;object-fit:cover;}
+  .lomo-emoji{font-size:16px;writing-mode:vertical-rl;}
+  .lomo-sin-portada{width:32px;height:160px;border-radius:3px 3px 0 0;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;font-size:9px;color:rgba(255,255,255,0.7);padding:4px;text-align:center;line-height:1.2;}
+  .view-toggle{display:flex;gap:6px;}
+  .view-btn{padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-dim);cursor:pointer;font-size:14px;transition:all 0.2s;}
+  .view-btn.active{background:rgba(176,127,212,0.2);color:var(--lavender);border-color:var(--violet-light);}
+  /* ── AUTOCOMPLETE GÉNERO ── */
+  .genero-wrapper{position:relative;}
+  .genre-suggestions{position:absolute;top:100%;left:0;right:0;background:var(--bg-panel);border:1px solid var(--violet-light);border-radius:8px;z-index:500;box-shadow:0 8px 24px rgba(0,0,0,0.4);max-height:200px;overflow-y:auto;}
+  .genre-suggestion-item{padding:8px 12px;cursor:pointer;font-size:14px;color:var(--text-main);transition:background 0.15s;border-bottom:1px solid var(--border);}
+  .genre-suggestion-item:last-child{border-bottom:none;}
+  .genre-suggestion-item:hover{background:rgba(176,127,212,0.15);color:var(--lavender);}
   .toast{position:fixed;bottom:22px;right:22px;background:var(--bg-panel);border:1px solid var(--violet-light);border-radius:10px;padding:12px 18px;color:var(--lavender-pale);font-size:14px;z-index:9999;transform:translateY(80px);opacity:0;transition:all 0.3s;box-shadow:0 8px 24px rgba(0,0,0,0.4);}
   .toast.show{transform:translateY(0);opacity:1;}
   /* LOADING OVERLAY */
@@ -361,7 +383,13 @@
   <div class="page" id="page-biblioteca">
     <div class="page-header">
       <div><div class="page-title">📚 Biblioteca</div><div class="page-subtitle">Todos mis libros en un solo lugar</div></div>
-      <button class="btn btn-primary" onclick="openAddModal()">✦ Agregar libro</button>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <div class="view-toggle">
+          <button class="view-btn active" id="btn-grid" onclick="setView('grid')" title="Vista cuadrícula">⊞</button>
+          <button class="view-btn" id="btn-shelf" onclick="setView('shelf')" title="Vista estantería">📚</button>
+        </div>
+        <button class="btn btn-primary" onclick="openAddModal()">✦ Agregar libro</button>
+      </div>
     </div>
     <div class="search-bar">
       <input type="text" class="search-input" id="searchInput" placeholder="🔍 Buscar por título, autor o género..." oninput="renderLibrary()">
@@ -376,7 +404,8 @@
         <option value="rating">Mayor rating</option><option value="autor">Autor A-Z</option>
       </select>
     </div>
-    <div id="library-grid" class="books-grid"></div>
+    <div id="library-grid" class="books-grid grid-view"></div>
+    <div id="shelf-view" class="shelf-view"></div>
   </div>
 
   <!-- TBR -->
@@ -459,7 +488,13 @@
         </div>
       </div>
       <div class="form-group"><label class="form-label">Autor/a *</label><input type="text" class="form-input" id="f-autor" placeholder="Nombre del autor"></div>
-      <div class="form-group"><label class="form-label">Género</label><input type="text" class="form-input" id="f-genero" placeholder="Ej: Fantasía, Romance..."></div>
+      <div class="form-group">
+        <label class="form-label">Género</label>
+        <div class="genero-wrapper">
+          <input type="text" class="form-input" id="f-genero" placeholder="Ej: Fantasía, Romance..." autocomplete="off" oninput="sugerirGenero()" onfocus="sugerirGenero()">
+          <div class="genre-suggestions" id="genre-suggestions" style="display:none;"></div>
+        </div>
+      </div>
       <div class="form-group"><label class="form-label">Saga / Serie</label><input type="text" class="form-input" id="f-saga" placeholder="Nombre de la saga"></div>
       <div class="form-group"><label class="form-label">N° de páginas</label><input type="number" class="form-input" id="f-paginas" placeholder="000"></div>
       <div class="form-group"><label class="form-label">Estado</label>
@@ -1188,6 +1223,85 @@ async function buscarPortada() {
   } catch(e) { showToast('⚠️ Error de conexión'); }
 }
 
+// ── VISTA ESTANTERÍA ─────────────────────────────────────────────────────────
+let currentView = 'grid';
+const LOMO_COLORS = ['#3d1f7a','#6b3fa0','#9b3060','#1a3a6a','#2a6a3a','#6a3a1a','#4a1a6a','#1a4a5a','#6a4a1a','#3a1a4a'];
+
+function setView(view) {
+  currentView = view;
+  document.getElementById('btn-grid').classList.toggle('active', view==='grid');
+  document.getElementById('btn-shelf').classList.toggle('active', view==='shelf');
+  document.getElementById('library-grid').classList.toggle('hidden', view==='shelf');
+  document.getElementById('shelf-view').classList.toggle('active', view==='shelf');
+  if (view==='shelf') renderShelf();
+}
+
+function renderShelf() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const status = document.getElementById('filterStatus').value;
+  let list = [...books];
+  if (q) list = list.filter(b=>b.titulo.toLowerCase().includes(q)||b.autor.toLowerCase().includes(q));
+  if (status) list = list.filter(b=>b.estado===status);
+
+  // Agrupar por género
+  const byGenre = {};
+  list.forEach(b => {
+    const g = b.genero || 'Sin género';
+    if (!byGenre[g]) byGenre[g] = [];
+    byGenre[g].push(b);
+  });
+
+  const container = document.getElementById('shelf-view');
+  if (!list.length) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">📚</div><h3>Estantería vacía</h3></div>';
+    return;
+  }
+
+  container.innerHTML = Object.entries(byGenre).sort((a,b)=>a[0].localeCompare(b[0])).map(([genre, libros]) => {
+    const lomos = libros.map((b,i) => {
+      const color = LOMO_COLORS[Math.abs(b.id) % LOMO_COLORS.length];
+      if (b.portada) {
+        return '<div class="lomo" onclick="openDetail('+b.id+')" title="'+b.titulo+' - '+b.autor+'"><img src="'+b.portada+'" onerror="this.parentElement.style.background=''+color+'';this.remove()"></div>';
+      } else {
+        return '<div class="lomo-sin-portada" onclick="openDetail('+b.id+')" title="'+b.titulo+'" style="background:'+color+';border-radius:3px 3px 0 0;cursor:pointer;">'+b.titulo.slice(0,20)+'</div>';
+      }
+    }).join('');
+    return '<div class="shelf-genre-section"><div class="shelf-genre-title">'+genre+' ('+libros.length+')</div><div class="shelf-row">'+lomos+'</div></div>';
+  }).join('');
+}
+
+// ── AUTOCOMPLETE GÉNERO ───────────────────────────────────────────────────────
+const GENEROS_SUGERIDOS = ['Fantasía','Romance','Ciencia ficción','Misterio','Thriller','Terror','Histórica','Aventura','Drama','Poesía','Ensayo','Biografía','Autoayuda','Infantil','Juvenil','Clásico','Contemporánea','Distopía','Paranormal','Dark Romance','Romantasy','Magia','Suspenso','Policial','Humor'];
+
+function sugerirGenero() {
+  const input = document.getElementById('f-genero');
+  const val = input.value.trim().toLowerCase();
+  const suggestions = document.getElementById('genre-suggestions');
+  
+  // Géneros existentes en la biblioteca
+  const generosExistentes = [...new Set(books.map(b=>b.genero).filter(Boolean))];
+  const todos = [...new Set([...generosExistentes, ...GENEROS_SUGERIDOS])];
+  
+  const filtrados = val ? todos.filter(g=>g.toLowerCase().includes(val)) : todos.slice(0,8);
+  
+  if (!filtrados.length) { suggestions.style.display='none'; return; }
+  
+  suggestions.innerHTML = filtrados.map(g => '<div class="genre-suggestion-item" onclick="elegirGenero(''+g+'')">' + g + '</div>').join('');
+  suggestions.style.display = 'block';
+}
+
+function elegirGenero(g) {
+  document.getElementById('f-genero').value = g;
+  document.getElementById('genre-suggestions').style.display = 'none';
+}
+
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.genero-wrapper')) {
+    const s = document.getElementById('genre-suggestions');
+    if(s) s.style.display='none';
+  }
+});
+
 // ── AUTOCOMPLETE LIBROS ──────────────────────────────────────────────────────
 let _bookItems = [];
 let _searchTimeout = null;
@@ -1253,4 +1367,8 @@ document.addEventListener('click', function(e) {
   }
 });
 
-// ── INIT ─────────────────────────────────────────────────────
+// ── INIT ──────────────────────────────────────────────────────────────────────
+loadAll();
+</script>
+</body>
+</html>
