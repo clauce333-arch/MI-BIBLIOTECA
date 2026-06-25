@@ -1162,6 +1162,31 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
   document.getElementById(id).addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
 });
 
+// ── BUSCAR PORTADA ───────────────────────────────────────────────────────────
+async function buscarPortada() {
+  const titulo = document.getElementById('f-titulo').value.trim();
+  if (!titulo) { showToast('⚠️ Escribe el título primero'); return; }
+  showToast('🔍 Buscando portada...');
+  try {
+    const q = encodeURIComponent(titulo.toLowerCase().replace(/ /g,'+'));
+    const res = await fetch('https://openlibrary.org/search.json?title='+q+'&limit=1&fields=cover_i,title,author_name');
+    const data = await res.json();
+    if (data.docs && data.docs[0] && data.docs[0].cover_i) {
+      const coverId = data.docs[0].cover_i;
+      const url = 'https://covers.openlibrary.org/b/id/'+coverId+'-L.jpg';
+      document.getElementById('f-portada').value = url;
+      document.getElementById('portada-img').src = url;
+      document.getElementById('portada-preview').style.display = 'block';
+      if (data.docs[0].author_name && !document.getElementById('f-autor').value) {
+        document.getElementById('f-autor').value = data.docs[0].author_name[0];
+      }
+      showToast('✅ Portada encontrada');
+    } else {
+      showToast('⚠️ No se encontró portada — intenta con otro título');
+    }
+  } catch(e) { showToast('⚠️ Error al buscar'); }
+}
+
 // ── AUTOCOMPLETE LIBROS ──────────────────────────────────────────────────────
 let _bookItems = [];
 let _searchTimeout = null;
@@ -1174,8 +1199,14 @@ function buscarSugerencias() {
   _searchTimeout = setTimeout(async () => {
     try {
       const q = encodeURIComponent(titulo);
-      const res = await fetch('https://www.googleapis.com/books/v1/volumes?q='+q+'&maxResults=6');
-      const data = await res.json();
+      const data = await new Promise((resolve, reject) => {
+        const cb = 'gbcb2_' + Math.random().toString(36).slice(2);
+        const s = document.createElement('script');
+        window[cb] = (d) => { delete window[cb]; s.parentNode && s.parentNode.removeChild(s); resolve(d); };
+        s.onerror = () => reject(new Error('error'));
+        s.src = 'https://www.googleapis.com/books/v1/volumes?q='+q+'&maxResults=6&callback='+cb;
+        document.body.appendChild(s);
+      });
       if (!data.items) { suggestions.style.display='none'; return; }
       _bookItems = data.items;
       let h = '';
