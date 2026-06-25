@@ -1321,6 +1321,8 @@ function renderShelf() {
 // ── AUTOCOMPLETE GÉNERO ───────────────────────────────────────────────────────
 const GENEROS_SUGERIDOS = ['Fantasía','Romance','Ciencia ficción','Misterio','Thriller','Terror','Histórica','Aventura','Drama','Poesía','Ensayo','Biografía','Autoayuda','Infantil','Juvenil','Clásico','Contemporánea','Distopía','Paranormal','Dark Romance','Romantasy','Magia','Suspenso','Policial','Humor'];
 
+let _generosFiltrados = [];
+
 function sugerirGenero() {
   const input = document.getElementById('f-genero');
   const val = input.value.trim().toLowerCase();
@@ -1334,12 +1336,13 @@ function sugerirGenero() {
   
   if (!filtrados.length) { suggestions.style.display='none'; return; }
   
-  suggestions.innerHTML = filtrados.map(g => '<div class="genre-suggestion-item" onclick="elegirGenero(''+g+'')">' + g + '</div>').join('');
+  _generosFiltrados = filtrados;
+  suggestions.innerHTML = filtrados.map(function(g,i){ return '<div class="genre-suggestion-item" onclick="elegirGenero('+i+')">' + g + '</div>'; }).join('');
   suggestions.style.display = 'block';
 }
 
-function elegirGenero(g) {
-  document.getElementById('f-genero').value = g;
+function elegirGenero(i) {
+  document.getElementById('f-genero').value = _generosFiltrados[i] || '';
   document.getElementById('genre-suggestions').style.display = 'none';
 }
 
@@ -1544,4 +1547,8 @@ function guardarMeta() {
   showToast('Meta guardada: ' + val + ' libros');
 }
 
-// ── INIT ───────────────────────────────────────────────────────
+// ── INIT ──────────────────────────────────────────────────────────────────────
+loadAll();
+</script>
+</body>
+</html>
