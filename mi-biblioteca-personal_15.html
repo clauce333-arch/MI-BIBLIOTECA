@@ -328,6 +328,10 @@
     <button class="nav-btn" onclick="showPage('moodboard')"><span class="nav-icon">🎨</span><span>Moodboards</span></button>
     <button class="nav-btn" onclick="showPage('personajes')"><span class="nav-icon">🎭</span><span>Personajes</span></button>
     <button class="nav-btn" onclick="showPage('estadisticas')"><span class="nav-icon">📊</span><span>Estadísticas</span></button>
+    <button class="nav-btn" onclick="showPage('leyendo')"><span class="nav-icon">🌙</span><span>Leyendo ahora</span></button>
+    <button class="nav-btn" onclick="showPage('frases')"><span class="nav-icon">💬</span><span>Frases</span></button>
+    <button class="nav-btn" onclick="showPage('historial')"><span class="nav-icon">📅</span><span>Historial</span></button>
+    <button class="nav-btn" onclick="showPage('reto')"><span class="nav-icon">🎯</span><span>Reto lector</span></button>
   </nav>
   <div class="sidebar-stats">
     <div class="stat-mini"><span>📖 Leídos</span><span id="s-leidos">0</span></div>
@@ -356,6 +360,9 @@
   </button>
   <button class="bottom-nav-btn" onclick="showPage('estadisticas');setBottomNav(this)">
     <span class="bnav-icon">📊</span><span class="bnav-label">Stats</span>
+  </button>
+  <button class="bottom-nav-btn" onclick="showPage('frases');setBottomNav(this)">
+    <span class="bnav-icon">💬</span><span class="bnav-label">Frases</span>
   </button>
 </nav>
 
@@ -466,6 +473,39 @@
     </div>
     <div class="card" style="margin-top:20px;"><div class="section-title" style="margin-bottom:14px;">🏆 Mis favoritos</div><div id="stats-favorites"></div></div>
   </div>
+
+  <!-- LEYENDO AHORA -->
+  <div class="page" id="page-leyendo">
+    <div class="page-header">
+      <div><div class="page-title">🌙 Leyendo ahora</div><div class="page-subtitle">Tu lectura actual</div></div>
+    </div>
+    <div id="leyendo-content"></div>
+  </div>
+
+  <!-- FRASES FAVORITAS -->
+  <div class="page" id="page-frases">
+    <div class="page-header">
+      <div><div class="page-title">💬 Frases favoritas</div><div class="page-subtitle">Las palabras que te marcaron</div></div>
+    </div>
+    <div id="frases-content"></div>
+  </div>
+
+  <!-- HISTORIAL -->
+  <div class="page" id="page-historial">
+    <div class="page-header">
+      <div><div class="page-title">📅 Historial lector</div><div class="page-subtitle">Tu línea de tiempo lectora</div></div>
+    </div>
+    <div id="historial-content"></div>
+  </div>
+
+  <!-- RETO LECTOR -->
+  <div class="page" id="page-reto">
+    <div class="page-header">
+      <div><div class="page-title">🎯 Reto lector</div><div class="page-subtitle">Tu meta del año</div></div>
+    </div>
+    <div id="reto-content"></div>
+  </div>
+
 </main>
 </div>
 
@@ -760,20 +800,22 @@ function charToRow(c) { return [c.id,c.nombre,c.libro,c.autor,c.tipo,c.emoji,c.r
 async function loadAll() {
   setSyncStatus('syncing','Conectando...');
   renderHome();
-  try {
-    const [bRows, tRows, mRows, cRows] = await Promise.all([
-      fetchSheet('Libros'), fetchSheet('TBR'), fetchSheet('Moodboards'), fetchSheet('Personajes')
-    ]);
-    books = bRows.map(rowToBook).filter(Boolean);
-    tbrItems = tRows.map(rowToTBR).filter(Boolean);
-    moodboards = mRows.map(rowToMood).filter(Boolean);
-    characters = cRows.map(rowToChar).filter(Boolean);
-    setSyncStatus('synced','Sincronizado ✓');
-    renderHome();
-    showToast('✨ Datos cargados');
-  } catch(e) {
-    setSyncStatus('error','Sin conexión');
-  }
+  setTimeout(async () => {
+    try {
+      const [bRows, tRows, mRows, cRows] = await Promise.all([
+        fetchSheet('Libros'), fetchSheet('TBR'), fetchSheet('Moodboards'), fetchSheet('Personajes')
+      ]);
+      books = bRows.map(rowToBook).filter(Boolean);
+      tbrItems = tRows.map(rowToTBR).filter(Boolean);
+      moodboards = mRows.map(rowToMood).filter(Boolean);
+      characters = cRows.map(rowToChar).filter(Boolean);
+      setSyncStatus('synced','Sincronizado ✓');
+      renderHome();
+      showToast('✨ Datos cargados');
+    } catch(e) {
+      setSyncStatus('error','Sin conexión');
+    }
+  }, 100);
 }
 
 async function saveBooks() {
@@ -805,7 +847,7 @@ function showPage(name) {
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b=>{if(b.getAttribute('onclick')?.includes("'"+name+"'"))b.classList.add('active');});
-  const actions={biblioteca:()=>{renderLibrary();populateGenreFilter();},home:renderHome,tbr:renderTBR,moodboard:renderMoodboards,personajes:renderChars,estadisticas:renderStats};
+  const actions={biblioteca:()=>{renderLibrary();populateGenreFilter();},home:renderHome,tbr:renderTBR,moodboard:renderMoodboards,personajes:renderChars,estadisticas:renderStats,leyendo:renderLeyendo,frases:renderFrases,historial:renderHistorial,reto:renderReto};
   if(actions[name]) actions[name]();
 }
 
@@ -1366,6 +1408,118 @@ document.addEventListener('click', function(e) {
     if(s) s.style.display='none';
   }
 });
+
+// ── LEYENDO AHORA ────────────────────────────────────────────────────────────
+function renderLeyendo() {
+  const leyendo = books.filter(b => b.estado === 'leyendo');
+  const container = document.getElementById('leyendo-content');
+  if (!leyendo.length) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">🌙</div><h3>No estás leyendo nada ahora</h3><p>Cambia el estado de un libro a "Leyendo" para verlo aquí</p></div>';
+    return;
+  }
+  container.innerHTML = leyendo.map(b => {
+    const paginas = parseInt(b.paginas) || 0;
+    const storedPage = localStorage.getItem('progress_' + b.id) || 0;
+    const pct = paginas ? Math.min(100, Math.round(storedPage / paginas * 100)) : 0;
+    const cover = b.portada ? '<img src="' + b.portada + '" style="width:100px;height:140px;object-fit:cover;border-radius:8px;flex-shrink:0;">' : '<div style="width:100px;height:140px;background:linear-gradient(135deg,#1a1330,#3d1f7a);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:40px;flex-shrink:0;">' + EMOJIS[b.id % EMOJIS.length] + '</div>';
+    return '<div class="card" style="display:flex;gap:20px;align-items:flex-start;margin-bottom:20px;">' +
+      cover +
+      '<div style="flex:1;">' +
+      '<div style="font-family:Cormorant Garamond,serif;font-size:22px;font-weight:600;color:var(--lavender-pale);margin-bottom:4px;">' + b.titulo + '</div>' +
+      '<div style="font-size:14px;color:var(--text-dim);font-style:italic;margin-bottom:16px;">por ' + b.autor + '</div>' +
+      '<div style="margin-bottom:8px;font-size:13px;color:var(--text-dim);">Progreso de lectura</div>' +
+      '<div style="background:var(--bg-panel);border-radius:20px;height:12px;margin-bottom:8px;overflow:hidden;">' +
+      '<div style="background:linear-gradient(90deg,var(--violet-mid),var(--lavender));height:100%;width:' + pct + '%;border-radius:20px;transition:width 0.3s;"></div></div>' +
+      '<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-dim);margin-bottom:16px;"><span>' + pct + '% completado</span>' + (paginas ? '<span>' + storedPage + ' / ' + paginas + ' páginas</span>' : '') + '</div>' +
+      (paginas ? '<div style="display:flex;gap:8px;align-items:center;"><input type="number" id="prog_' + b.id + '" value="' + storedPage + '" min="0" max="' + paginas + '" style="width:80px;background:var(--bg-panel);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text-main);font-size:14px;" placeholder="Página actual"><button class="btn btn-primary btn-sm" onclick="guardarProgreso(' + b.id + ',' + paginas + ')">Guardar</button></div>' : '<p style="color:var(--text-dim);font-size:13px;">Agrega el número de páginas al libro para ver el progreso</p>') +
+      '</div></div>';
+  }).join('');
+}
+
+function guardarProgreso(id, total) {
+  const val = parseInt(document.getElementById('prog_' + id).value) || 0;
+  localStorage.setItem('progress_' + id, val);
+  renderLeyendo();
+  showToast('✅ Progreso guardado');
+}
+
+// ── FRASES FAVORITAS ──────────────────────────────────────────────────────────
+function renderFrases() {
+  const conCita = books.filter(b => b.cita && b.cita.trim());
+  const container = document.getElementById('frases-content');
+  if (!conCita.length) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">💬</div><h3>Sin frases aún</h3><p>Agrega citas favoritas al guardar un libro</p></div>';
+    return;
+  }
+  container.innerHTML = conCita.map(b =>
+    '<div class="card" style="margin-bottom:16px;">' +
+    '<div style="font-size:28px;color:var(--gold);opacity:0.4;line-height:1;margin-bottom:8px;">"</div>' +
+    '<div style="font-family:Cormorant Garamond,serif;font-size:18px;font-style:italic;color:var(--lavender-pale);line-height:1.7;margin-bottom:12px;">' + b.cita + '</div>' +
+    '<div style="font-size:13px;color:var(--text-dim);">— ' + b.titulo + (b.autor ? ', ' + b.autor : '') + '</div>' +
+    '</div>'
+  ).join('');
+}
+
+// ── HISTORIAL ─────────────────────────────────────────────────────────────────
+function renderHistorial() {
+  const leidos = books.filter(b => b.estado === 'leido' && b.fecha_termino).sort((a,b) => b.fecha_termino.localeCompare(a.fecha_termino));
+  const container = document.getElementById('historial-content');
+  if (!leidos.length) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">📅</div><h3>Sin historial aún</h3><p>Los libros leídos con fecha de término aparecerán aquí</p></div>';
+    return;
+  }
+  const byYear = {};
+  leidos.forEach(b => {
+    const year = b.fecha_termino.slice(0,4) || 'Sin fecha';
+    if (!byYear[year]) byYear[year] = [];
+    byYear[year].push(b);
+  });
+  container.innerHTML = Object.entries(byYear).sort((a,b)=>b[0].localeCompare(a[0])).map(([year, libros]) =>
+    '<div style="margin-bottom:28px;">' +
+    '<div style="font-family:Cinzel Decorative,cursive;font-size:16px;color:var(--gold-light);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);">📅 ' + year + ' — ' + libros.length + ' libro' + (libros.length>1?'s':'') + '</div>' +
+    '<div style="display:flex;flex-direction:column;gap:10px;">' +
+    libros.map(b =>
+      '<div class="card" style="display:flex;gap:14px;align-items:center;padding:12px 16px;">' +
+      (b.portada ? '<img src="' + b.portada + '" style="width:40px;height:56px;object-fit:cover;border-radius:4px;flex-shrink:0;">' : '<div style="width:40px;height:56px;background:linear-gradient(135deg,#1a1330,#3d1f7a);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">' + EMOJIS[b.id%EMOJIS.length] + '</div>') +
+      '<div style="flex:1;"><div style="font-weight:600;color:var(--lavender-pale);">' + b.titulo + '</div>' +
+      '<div style="font-size:12px;color:var(--text-dim);">' + b.autor + (b.fecha_termino ? ' · ' + b.fecha_termino : '') + '</div></div>' +
+      '<div style="color:var(--gold);font-size:14px;">' + '★'.repeat(b.rating_general||0) + '</div>' +
+      '</div>'
+    ).join('') + '</div></div>'
+  ).join('');
+}
+
+// ── RETO LECTOR ───────────────────────────────────────────────────────────────
+function renderReto() {
+  const year = new Date().getFullYear();
+  let meta = parseInt(localStorage.getItem('reto_meta_' + year)) || 12;
+  const leidos = books.filter(b => b.estado==='leido' && b.fecha_termino && b.fecha_termino.startsWith(year.toString())).length;
+  const pct = Math.min(100, Math.round(leidos/meta*100));
+  const container = document.getElementById('reto-content');
+  container.innerHTML =
+    '<div class="card" style="max-width:500px;margin:0 auto;text-align:center;">' +
+    '<div style="font-size:48px;margin-bottom:12px;">🎯</div>' +
+    '<div style="font-family:Cinzel Decorative,cursive;font-size:18px;color:var(--gold-light);margin-bottom:6px;">Reto ' + year + '</div>' +
+    '<div style="font-size:14px;color:var(--text-dim);margin-bottom:24px;">Meta: leer <strong style="color:var(--lavender);">' + meta + ' libros</strong> este año</div>' +
+    '<div style="font-size:48px;font-family:Cinzel Decorative,cursive;color:var(--gold-light);">' + leidos + '</div>' +
+    '<div style="font-size:13px;color:var(--text-dim);margin-bottom:20px;">libros leídos en ' + year + '</div>' +
+    '<div style="background:var(--bg-panel);border-radius:20px;height:16px;margin-bottom:10px;overflow:hidden;">' +
+    '<div style="background:linear-gradient(90deg,var(--violet-mid),var(--gold));height:100%;width:' + pct + '%;border-radius:20px;transition:width 0.5s;"></div></div>' +
+    '<div style="font-size:13px;color:var(--text-dim);margin-bottom:24px;">' + pct + '% de tu meta completada</div>' +
+    '<div style="display:flex;gap:10px;justify-content:center;align-items:center;">' +
+    '<label style="font-size:13px;color:var(--text-dim);">Cambiar meta:</label>' +
+    '<input type="number" id="reto-meta-input" value="' + meta + '" min="1" max="365" style="width:70px;background:var(--bg-panel);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text-main);font-size:14px;text-align:center;">' +
+    '<button class="btn btn-primary btn-sm" onclick="guardarMeta()">Guardar</button></div>' +
+    '</div>';
+}
+
+function guardarMeta() {
+  const year = new Date().getFullYear();
+  const val = parseInt(document.getElementById('reto-meta-input').value) || 12;
+  localStorage.setItem('reto_meta_' + year, val);
+  renderReto();
+  showToast('🎯 Meta guardada: ' + val + ' libros');
+}
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 loadAll();
