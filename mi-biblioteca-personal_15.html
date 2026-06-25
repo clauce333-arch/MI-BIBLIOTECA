@@ -1181,7 +1181,7 @@ function buscarSugerencias() {
       let h = '';
       data.items.forEach(function(item,i) {
         const info = item.volumeInfo;
-        const t = (info.title||'').replace(/</g,'&lt;');
+        const t = String(info.title||'');
         const a = info.authors ? info.authors[0] : '';
         const p = info.pageCount ? info.pageCount+' pags' : '';
         const g = info.categories ? info.categories[0] : '';
@@ -1226,4 +1226,3 @@ loadAll();
 </script>
 </body>
 </html>
-
