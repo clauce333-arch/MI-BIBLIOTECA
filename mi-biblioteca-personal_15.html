@@ -723,7 +723,8 @@ function rowToChar(r) {
 function charToRow(c) { return [c.id,c.nombre,c.libro,c.autor,c.tipo,c.emoji,c.razon,c.momento,c.rasgos,c.cita]; }
 
 async function loadAll() {
-  setSyncStatus('syncing','Cargando datos...');
+  setSyncStatus('syncing','Conectando...');
+  renderHome();
   try {
     const [bRows, tRows, mRows, cRows] = await Promise.all([
       fetchSheet('Libros'), fetchSheet('TBR'), fetchSheet('Moodboards'), fetchSheet('Personajes')
@@ -734,10 +735,9 @@ async function loadAll() {
     characters = cRows.map(rowToChar).filter(Boolean);
     setSyncStatus('synced','Sincronizado ✓');
     renderHome();
-    showToast('✨ Datos cargados desde Google Sheets');
+    showToast('✨ Datos cargados');
   } catch(e) {
     setSyncStatus('error','Sin conexión');
-    showToast('⚠️ No se pudo conectar con Google Sheets');
   }
 }
 
@@ -1187,7 +1187,7 @@ function buscarSugerencias() {
         const g = info.categories ? info.categories[0] : '';
         const img = info.imageLinks ? (info.imageLinks.thumbnail||'').replace('http:','https:') : '';
         h += '<div class="book-suggestion-item" onclick="elegirLibro('+i+')">';
-        h += img ? '<img class="book-suggestion-img" src="'+img+'" onerror="this.style.display='none'">' : '<div class="book-suggestion-img"></div>';
+        h += img ? '<img class="book-suggestion-img" src="'+img+'">' : '<div class="book-suggestion-img"></div>';
         h += '<div class="book-suggestion-info"><div class="book-suggestion-title">'+t+'</div>';
         h += '<div class="book-suggestion-author">'+a+'</div>';
         h += '<div class="book-suggestion-meta">'+[p,g].filter(Boolean).join(' - ')+'</div></div></div>';
