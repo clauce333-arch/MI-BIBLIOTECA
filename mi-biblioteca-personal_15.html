@@ -741,7 +741,7 @@ async function fetchSheet(tab) {
     script.onerror = () => reject(new Error('JSONP error'));
     script.src = `${SCRIPT_URL}?tab=${encodeURIComponent(tab)}&callback=${cbName}&t=${Date.now()}`;
     document.body.appendChild(script);
-    setTimeout(() => { if(window[cbName]) { delete window[cbName]; reject(new Error('timeout')); }}, 10000);
+    setTimeout(() => { if(window[cbName]) { delete window[cbName]; try{document.body.removeChild(script);}catch(e){} reject(new Error('timeout')); }}, 5000);
   });
 }
 
@@ -754,7 +754,7 @@ async function pushSheet(tab, data) {
     const encoded = encodeURIComponent(JSON.stringify({tab, data}));
     script.src = `${SCRIPT_URL}?method=POST&payload=${encoded}&callback=${cbName}&t=${Date.now()}`;
     document.body.appendChild(script);
-    setTimeout(() => { if(window[cbName]) { delete window[cbName]; reject(new Error('timeout')); }}, 15000);
+    setTimeout(() => { if(window[cbName]) { delete window[cbName]; try{document.body.removeChild(script);}catch(e){} reject(new Error('timeout')); }}, 8000);
   });
 }
 
@@ -1521,8 +1521,4 @@ function guardarMeta() {
   showToast('🎯 Meta guardada: ' + val + ' libros');
 }
 
-// ── INIT ──────────────────────────────────────────────────────────────────────
-loadAll();
-</script>
-</body>
-</html>
+// ── INIT ──────────
