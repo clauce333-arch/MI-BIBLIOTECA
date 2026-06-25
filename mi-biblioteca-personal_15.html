@@ -364,7 +364,7 @@
   <div class="page active" id="page-home">
     <div class="welcome-banner">
       <h2>✨ Mi Biblioteca Personal</h2>
-      <p>Cada libro es un mundo. Cada página, una aventura que te pertenece.</p>
+      <p>Tantos libros y poco tiempo.</p>
     </div>
     <div class="stats-row">
       <div class="stat-card"><div class="stat-icon">📖</div><span class="stat-number" id="home-total">0</span><div class="stat-label">Libros en total</div></div>
@@ -1261,10 +1261,10 @@ function renderShelf() {
     const lomos = libros.map((b,i) => {
       const color = LOMO_COLORS[Math.abs(b.id) % LOMO_COLORS.length];
       if (b.portada) {
-        return '<div class="lomo" onclick="openDetail('+b.id+')" title="'+b.titulo+' - '+b.autor+'"><img src="'+b.portada+'" onerror="this.parentElement.style.background=''+color+'';this.remove()"></div>';
-      } else {
-        return '<div class="lomo-sin-portada" onclick="openDetail('+b.id+')" title="'+b.titulo+'" style="background:'+color+';border-radius:3px 3px 0 0;cursor:pointer;">'+b.titulo.slice(0,20)+'</div>';
-      }
+        const lomoHTML = b.portada ? '<div class="lomo" onclick="openDetail(' + b.id + ')" title="' + b.titulo + '"><img src="' + b.portada + '"></div>' : '<div class="lomo-sin-portada" onclick="openDetail(' + b.id + ')" style="background:' + color + ';border-radius:3px 3px 0 0;cursor:pointer;">' + b.titulo.slice(0,15) + '</div>';
+        return lomoHTML;
+
+
     }).join('');
     return '<div class="shelf-genre-section"><div class="shelf-genre-title">'+genre+' ('+libros.length+')</div><div class="shelf-row">'+lomos+'</div></div>';
   }).join('');
