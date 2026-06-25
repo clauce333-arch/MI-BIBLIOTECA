@@ -797,25 +797,27 @@ function rowToChar(r) {
 }
 function charToRow(c) { return [c.id,c.nombre,c.libro,c.autor,c.tipo,c.emoji,c.razon,c.momento,c.rasgos,c.cita]; }
 
-async function loadAll() {
+function loadAll() {
   setSyncStatus('syncing','Conectando...');
   renderHome();
-  setTimeout(async () => {
-    try {
-      const [bRows, tRows, mRows, cRows] = await Promise.all([
-        fetchSheet('Libros'), fetchSheet('TBR'), fetchSheet('Moodboards'), fetchSheet('Personajes')
-      ]);
-      books = bRows.map(rowToBook).filter(Boolean);
-      tbrItems = tRows.map(rowToTBR).filter(Boolean);
-      moodboards = mRows.map(rowToMood).filter(Boolean);
-      characters = cRows.map(rowToChar).filter(Boolean);
-      setSyncStatus('synced','Sincronizado ✓');
-      renderHome();
-      showToast('✨ Datos cargados');
-    } catch(e) {
-      setSyncStatus('error','Sin conexión');
-    }
-  }, 100);
+  // Cargar cada hoja de forma independiente sin bloquear
+  fetchSheet('Libros').then(rows => {
+    books = rows.map(rowToBook).filter(Boolean);
+    renderHome();
+  }).catch(()=>{});
+  fetchSheet('TBR').then(rows => {
+    tbrItems = rows.map(rowToTBR).filter(Boolean);
+  }).catch(()=>{});
+  fetchSheet('Moodboards').then(rows => {
+    moodboards = rows.map(rowToMood).filter(Boolean);
+  }).catch(()=>{});
+  fetchSheet('Personajes').then(rows => {
+    characters = rows.map(rowToChar).filter(Boolean);
+    setSyncStatus('synced','Sincronizado ✓');
+    renderHome();
+  }).catch(()=>{
+    setSyncStatus('error','Sin conexión');
+  });
 }
 
 async function saveBooks() {
@@ -1524,5 +1526,4 @@ function guardarMeta() {
 // ── INIT ──────────────────────────────────────────────────────────────────────
 loadAll();
 </script>
-</body>
-</html>
+</bod
